@@ -25,6 +25,11 @@ namespace ChronosClient
         public MainPage()
         {
             this.InitializeComponent();
+            Loaded += MainPage_Loaded;
+        }
+        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(Views.Login));
         }
     }
 }
