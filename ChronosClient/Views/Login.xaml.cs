@@ -25,8 +25,9 @@ namespace ChronosClient.Views
         private static string built_json;
         private static StringContent stringContent;
         public static string sessionToken { get; set; }
-        public string email { get; set; }
-        public string password { get; set; }
+        private string email { get; set; }
+        private string password { get; set; }
+        private string auth_token { get; set; }
 
 
         /// <summary>
@@ -85,7 +86,17 @@ namespace ChronosClient.Views
                 enable_Buttons(false);
                 try
                 {
-                   
+                    HttpResponseMessage responseMessage = await "https://chronoschat.co/reg_user".PostUrlEncodedAsync(new
+                    {
+                        email = userID_Box.Text.ToString(),
+                        password = password_Box.Text.ToString()
+                    });
+                    string reg_Response = await responseMessage.Content.ReadAsStringAsync();
+                    string sent = responseMessage.ToString();
+                    update_StatusText(reg_Response);
+                    Debug.WriteLine(sent);
+                    Debug.WriteLine(reg_Response.ToString());
+
                 }
                 catch (HttpRequestException hre)
                 {
