@@ -110,35 +110,6 @@ namespace ChronosClient.Views
             }
         }
 
-        public async Task<System.Net.Http.HttpResponseMessage> SendRequestAsync(string adaptiveUri, string json)
-        {
-            using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
-            {
-                client.BaseAddress = new Uri("http://chronoschat.co/");
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders
-                    .Accept
-                    .Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var httpConent = new StringContent(json, Encoding.UTF8, "application/json");
-                System.Net.Http.HttpResponseMessage responseMessage = null;
-                try
-                {
-                    responseMessage = await client.PostAsync(adaptiveUri, httpConent).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    if (responseMessage == null)
-                    {
-                        responseMessage = new System.Net.Http.HttpResponseMessage();
-                    }
-                    responseMessage.StatusCode = System.Net.HttpStatusCode.BadGateway;
-                    responseMessage.ReasonPhrase = string.Format("HttpClient request failed.", ex);
-                }
-               
-                return responseMessage;
-            }
-        }
-
         /// <summary>
         /// Validates user input
         /// </summary>
@@ -222,19 +193,6 @@ namespace ChronosClient.Views
             this.register_Button.IsEnabled = option;
         }
 
-        /// <summary>
-        /// Builds Json and HttpContent stringContent  for login and registration in the Login view
-        /// </summary>
-        /// <param name="email"></param>
-        /// <param name="pass"></param>
-        private static void setJson(string email, string pass)
-        {
-            dynamic json = new ExpandoObject();
-            json.email = email;
-            json.password = pass;
-            built_json = Newtonsoft.Json.JsonConvert.SerializeObject(json);
-            stringContent = new StringContent(built_json, Encoding.UTF8, "application/json");
-        }
 
         private void password_Box_TextChanged(object sender, TextChangedEventArgs e)
         {
