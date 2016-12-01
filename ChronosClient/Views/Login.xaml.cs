@@ -18,11 +18,15 @@ namespace ChronosClient.Views
         /// <summary>
         /// Static variables
         /// </summary>
-        public static string session_Token { get; set; }
-        private string email { get; set; }
-        private string password { get; set; }
-        private string auth_token { get; set; }
-
+        /// 
+        public class jsonParse
+        {
+            public string auth_token { get; set; }
+            public string session_Token { get; set; }
+            public string email { get; set; }
+            public string error { get; set; }
+            public string password { get; set; }
+        }
 
         /// <summary>
         /// Main
@@ -40,6 +44,10 @@ namespace ChronosClient.Views
         /// <param name="e"></param>
         private async void login_Click(object sender, RoutedEventArgs e)
         {
+            DataContainer.Token = null;
+            DataContainer.User = null;
+            DataContainer.Error = null;
+
             if (check_Input() == false)
             {
                 enable_Buttons(false);
@@ -50,26 +58,32 @@ namespace ChronosClient.Views
                         email = userID_Box.Text.ToString(),
                         password = password_Box.Text.ToString()
                     });
+
                     string login_Response = await responseMessage.Content.ReadAsStringAsync();
                     string sent = responseMessage.ToString();
-                    //Null
-                    Login json = JsonConvert.DeserializeObject<Login>(login_Response);
-                    session_Token = json.auth_token.ToString();
-                    update_StatusText(session_Token);
-                    Debug.WriteLine(sent);
-                    Debug.WriteLine(login_Response.ToString());
+                    jsonParse json = JsonConvert.DeserializeObject<jsonParse>(login_Response);
+                    DataContainer.Token = json.auth_token.ToString();
+                        update_StatusBar("blue");
+                        update_StatusText("Authenticated");
+                        Debug.WriteLine(sent);
+                        Debug.WriteLine(login_Response.ToString());
+                        Debug.WriteLine(DataContainer.Token);
+                    
                 }
                 catch (HttpRequestException hre)
                 {
-                    update_StatusText("Error:" + hre.Message);
+                    update_StatusBar("red"); 
+                    update_StatusText("Error: " + hre.Message);
                 }
                 catch (Exception ex)
                 {
-                    update_StatusText(ex.Message);
+                    update_StatusBar("red");
+                    update_StatusText("Error: " + ex.Message);
                 }
                
             }
         }
+
 
         /// <summary>
         /// Registration action 

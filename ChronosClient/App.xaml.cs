@@ -19,8 +19,9 @@ namespace ChronosClient
 {
     public static class DataContainer
     {
-        public static string ValueToShare;
+        public static string Token;
         public static string User;
+        public static string Error;
     }
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
