@@ -17,6 +17,11 @@ using Windows.UI.Xaml.Navigation;
 
 namespace ChronosClient
 {
+    public static class DataContainer
+    {
+        public static string ValueToShare;
+        public static string User;
+    }
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>

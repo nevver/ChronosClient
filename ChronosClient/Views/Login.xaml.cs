@@ -3,13 +3,10 @@ using System.Text.RegularExpressions;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using System.Dynamic;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using System.Text;
 using System.Diagnostics;
 using Flurl.Http;
+using Newtonsoft.Json;
 
 namespace ChronosClient.Views
 {
@@ -21,10 +18,7 @@ namespace ChronosClient.Views
         /// <summary>
         /// Static variables
         /// </summary>
-
-        private static string built_json;
-        private static StringContent stringContent;
-        public static string sessionToken { get; set; }
+        public static string session_Token { get; set; }
         private string email { get; set; }
         private string password { get; set; }
         private string auth_token { get; set; }
@@ -58,7 +52,10 @@ namespace ChronosClient.Views
                     });
                     string login_Response = await responseMessage.Content.ReadAsStringAsync();
                     string sent = responseMessage.ToString();
-                    update_StatusText(login_Response);
+                    //Null
+                    Login json = JsonConvert.DeserializeObject<Login>(login_Response);
+                    session_Token = json.auth_token.ToString();
+                    update_StatusText(session_Token);
                     Debug.WriteLine(sent);
                     Debug.WriteLine(login_Response.ToString());
                 }
