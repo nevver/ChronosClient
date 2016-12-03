@@ -63,22 +63,25 @@ namespace ChronosClient.Views
                     string sent = responseMessage.ToString();
                     jsonParse json = JsonConvert.DeserializeObject<jsonParse>(login_Response);
                     DataContainer.Token = json.auth_token.ToString();
-                        update_StatusBar("blue");
-                        update_StatusText("Authenticated");
-                        Debug.WriteLine(sent);
-                        Debug.WriteLine(login_Response.ToString());
-                        Debug.WriteLine(DataContainer.Token);
+                    update_StatusBar("blue");
+                    update_StatusText("Authenticated!");
+                    Debug.WriteLine(sent);
+                    Debug.WriteLine(login_Response.ToString());
+                    Debug.WriteLine(DataContainer.Token);
+                    this.Frame.Navigate(typeof(ListUsers));
+                    
+                    
                     
                 }
                 catch (HttpRequestException hre)
                 {
                     update_StatusBar("red"); 
-                    update_StatusText("Error: " + hre.Message);
+                    update_StatusText("Login failed. Try again.");
                 }
                 catch (Exception ex)
                 {
                     update_StatusBar("red");
-                    update_StatusText("Error: " + ex.Message);
+                    update_StatusText("Login failed. Try again.");
                 }
                
             }
@@ -111,12 +114,15 @@ namespace ChronosClient.Views
                 }
                 catch (HttpRequestException hre)
                 {
-                    update_StatusText("Error:" + hre.Message);
+                    update_StatusBar("red");
+                    update_StatusText("Registration failed. Try again.");
                 }
                 catch (Exception ex)
                 {
-                    update_StatusText(ex.Message);
+                    update_StatusBar("red");
+                    update_StatusText("Registration failed. Try again.");
                 }
+
 
             }
         }

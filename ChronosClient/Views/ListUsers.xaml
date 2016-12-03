@@ -1,0 +1,15 @@
+﻿<Page
+    x:Class="ChronosClient.Views.ListUsers"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ChronosClient.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <ListView x:Name="listView_Users" Height="369" VerticalAlignment="Center" Width="569" HorizontalAlignment="Center" Margin="356,218,355,133"/>
+        <TextBlock x:Name="label" HorizontalAlignment="Center"  TextWrapping="Wrap" Text="Chronos Chat" VerticalAlignment="Top" FontWeight="Light" FontSize="50" Width="295" Margin="493,94,492,0" />
+        <TextBlock x:Name="startChatMessage" HorizontalAlignment="Left" Margin="356,218,0,0" TextWrapping="Wrap" FontStyle="Italic" FontSize="20" Text="Select a user to start chatting!" VerticalAlignment="Top" SelectionChanged="textBlock1_SelectionChanged"/>
+    </Grid>
+</Page>
