@@ -12,8 +12,7 @@
         <TextBox x:Name="password_Box" HorizontalAlignment="Center" TextWrapping="Wrap" VerticalAlignment="Top" Width="250" PlaceholderText="Password" Margin="515,378,515,0" InputScope="Password" TextChanged="password_Box_TextChanged"/>
         <Button x:Name="login_Button" Content="Login" HorizontalAlignment="Center" Margin="515,415,641,0" VerticalAlignment="Top" Width="124" Click="login_Click"/>
         <Button x:Name="register_Button" Content="Register" HorizontalAlignment="Center" Margin="641,415,515,0" VerticalAlignment="Top" Width="124" Click="register_Click"/>
-        <Border x:Name="status_Bar" Background="#22B14C"
-               Margin="0,500,0,120" Height="100" >
+        <Border x:Name="status_Bar" Margin="0,466,0,154" Height="100" >
             <TextBlock x:Name="status_Text" Text="Login or register to continue."
              Margin="4" TextAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
         </Border>

@@ -1,0 +1,18 @@
+﻿<Page
+    x:Class="ChronosClient.Views.AsymmetricKeys"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ChronosClient.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <TextBlock x:Name="label" HorizontalAlignment="Center"  TextWrapping="Wrap" Text="Chronos Chat" VerticalAlignment="Top" FontWeight="Light" FontSize="50" Width="295" Margin="493,94,492,0" />
+        <TextBlock x:Name="keyGenMessage" HorizontalAlignment="Center"  TextWrapping="Wrap"  FontSize="20" Text="No asymmetric keys were found. Where would you like to store your public key copy?" VerticalAlignment="Top"  Width="761" Margin="260,256,259,0"/>
+        <Button x:Name="dirSelectorButton" Content="Select Folder" HorizontalAlignment="Left" Margin="898,341,0,0" VerticalAlignment="Top" Click="dirSelector_Click"/>
+        <TextBlock x:Name="directory" HorizontalAlignment="Center"  TextWrapping="Wrap"  FontSize="20" Text="" VerticalAlignment="Top" Margin="287,428,286,0"/>
+        <Button x:Name="continueButton" Content="Continue" HorizontalAlignment="Left" Margin="921,341,0,0" VerticalAlignment="Top" Click="continue_Click"/>
+    </Grid>
+</Page>

@@ -60,6 +60,7 @@ namespace ChronosClient.Views
         private void listView_Users_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             next_Button.IsEnabled = listView_Users.SelectedItems.Count > 0;
+            DataContainer.Recipient = listView_Users.SelectedItems[0].ToString();
 
         }
 

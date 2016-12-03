@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Diagnostics;
 using Flurl.Http;
 using Newtonsoft.Json;
+using Windows.Storage;
 
 namespace ChronosClient.Views
 {
@@ -46,7 +47,6 @@ namespace ChronosClient.Views
         {
             DataContainer.Token = null;
             DataContainer.User = null;
-            DataContainer.Error = null;
 
             if (check_Input() == false)
             {
@@ -68,10 +68,15 @@ namespace ChronosClient.Views
                     Debug.WriteLine(sent);
                     Debug.WriteLine(login_Response.ToString());
                     Debug.WriteLine(DataContainer.Token);
-                    this.Frame.Navigate(typeof(ListUsers));
-                    
-                    
-                    
+                    if (checkKeysDirectory() == false)
+                    {
+                        Frame.Navigate(typeof(AsymmetricKeys));
+                    }
+                    else if (checkKeysDirectory() == true)
+                    {
+                        Frame.Navigate(typeof(ListUsers));
+                    }
+
                 }
                 catch (HttpRequestException hre)
                 {
@@ -87,6 +92,23 @@ namespace ChronosClient.Views
             }
         }
 
+
+
+        /// <summary>
+        /// Checks directory for keys and returns a boolean
+        /// 
+        /// true = keys exists
+        /// false = keys do not exists
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private static Boolean checkKeysDirectory()
+        {
+
+
+            return false;
+            
+        }
 
         /// <summary>
         /// Registration action 
