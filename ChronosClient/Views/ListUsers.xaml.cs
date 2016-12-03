@@ -14,6 +14,7 @@ namespace ChronosClient.Views
     {
         public ListUsers()
         {
+            
             this.InitializeComponent();
             GetUsers("https://www.chronoschat.co/conversations/index");
         }
@@ -37,6 +38,8 @@ namespace ChronosClient.Views
                             string user = data.users[i].email.ToString();
                             listView_Users.Items.Add(user);
                         }
+
+                        next_Button.IsEnabled = false;
                     }
                 }
             }
@@ -54,13 +57,13 @@ namespace ChronosClient.Views
             public List<User> users { get; set; }
         }
 
-        private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void listView_Users_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            next_Button.IsEnabled = listView_Users.SelectedItems.Count > 0;
 
         }
 
-        private void textBlock1_SelectionChanged(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        private void next_Button_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
 
         }

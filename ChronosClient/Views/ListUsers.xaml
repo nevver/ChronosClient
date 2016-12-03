@@ -8,8 +8,9 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <ListView x:Name="listView_Users" Height="369" VerticalAlignment="Center" Width="569" HorizontalAlignment="Center" Margin="356,218,355,133"/>
+        <ListView x:Name="listView_Users" Height="322" VerticalAlignment="Center" Width="569" HorizontalAlignment="Center" Margin="356,218,355,180" SelectionChanged="listView_Users_SelectionChanged"/>
         <TextBlock x:Name="label" HorizontalAlignment="Center"  TextWrapping="Wrap" Text="Chronos Chat" VerticalAlignment="Top" FontWeight="Light" FontSize="50" Width="295" Margin="493,94,492,0" />
-        <TextBlock x:Name="startChatMessage" HorizontalAlignment="Left" Margin="356,218,0,0" TextWrapping="Wrap" FontStyle="Italic" FontSize="20" Text="Select a user to start chatting!" VerticalAlignment="Top" SelectionChanged="textBlock1_SelectionChanged"/>
+        <TextBlock x:Name="startChatMessage" HorizontalAlignment="Left" Margin="380,218,0,0" TextWrapping="Wrap" FontStyle="Italic" FontSize="20" Text="Select a user to start chatting!" VerticalAlignment="Top"/>
+        <Button x:Name="next_Button" Content="Continue" HorizontalAlignment="Left" Margin="856,656,0,0" VerticalAlignment="Top" Click="next_Button_Click"/>
     </Grid>
 </Page>
