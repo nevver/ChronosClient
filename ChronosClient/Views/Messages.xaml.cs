@@ -20,7 +20,7 @@ namespace ChronosClient.Views
         {
             this.InitializeComponent();
 
-            GetMessages("http://chronoschat.co/messages/index?conversation_id=" + DataContainer.ConversationID);
+            GetMessages("https://www.chronoschat.co/messages/index?conversation_id=" + DataContainer.ConversationID);
 
         }
 
@@ -51,17 +51,8 @@ namespace ChronosClient.Views
                         Debug.WriteLine("Json response: " + jsonResponse);
                         RootObject data = JsonConvert.DeserializeObject<RootObject>(jsonResponse);
                         RootError failure = JsonConvert.DeserializeObject<RootError>(jsonResponse);
-                        string errorMessage = failure.error.ToString();
+                        //string errorMessage = failure.error.ToString();
                         
-
-                        // If we get an error json response instead of messages array
-                        if (errorMessage != null)
-                        {
-                            ErrorNotAuthenticated(errorMessage);
-                        }
-                        else
-                        {
-
                             for (int i = 0; i < data.messages.Count; i++)
                             {
                                 string user = data.messages[i].user_email;
@@ -69,11 +60,6 @@ namespace ChronosClient.Views
                                 string body = data.messages[i].body;
                                 listView_Messages.Items.Add(user + ": " + body + " at " + createdAt);
                             }
-
-                        }
-
-                        
-
                     }
                 }
             }
