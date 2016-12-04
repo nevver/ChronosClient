@@ -10,10 +10,9 @@ namespace ChronosClient
     public static class DataContainer
     {
         public static string Token;
+        public static string ConversationID;
         public static string User;
         public static string Recipient;
-
-        
     }
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.

@@ -45,18 +45,20 @@ namespace ChronosClient.Views
         /// <param name="e"></param>
         private async void login_Click(object sender, RoutedEventArgs e)
         {
-            DataContainer.Token = null;
-            DataContainer.User = null;
+            DataContainer.User = userID_Box.Text.ToString();
 
             if (check_Input() == false)
             {
                 enable_Buttons(false);
                 try
                 {
+                   
                     HttpResponseMessage responseMessage = await "https://chronoschat.co/auth_user".PostUrlEncodedAsync(new
                     {
+
                         email = userID_Box.Text.ToString(),
-                        password = password_Box.Text.ToString()
+                        password = password_Box.Password.ToString()
+
                     });
 
                     string login_Response = await responseMessage.Content.ReadAsStringAsync();
@@ -105,8 +107,9 @@ namespace ChronosClient.Views
         private static Boolean checkKeysDirectory()
         {
 
-
-            return false;
+            //Automatically skips direcory check when true
+            // Changed for debugging purposes
+            return true;
             
         }
 
@@ -125,7 +128,7 @@ namespace ChronosClient.Views
                     HttpResponseMessage responseMessage = await "https://chronoschat.co/reg_user".PostUrlEncodedAsync(new
                     {
                         email = userID_Box.Text.ToString(),
-                        password = password_Box.Text.ToString()
+                        password = password_Box.Password.ToString()
                     });
                     string reg_Response = await responseMessage.Content.ReadAsStringAsync();
                     string sent = responseMessage.ToString();
@@ -155,7 +158,7 @@ namespace ChronosClient.Views
         /// <returns>Boolean false means validation passes</returns>
         private Boolean check_Input()
         {
-            if (string.IsNullOrWhiteSpace(userID_Box.Text) || string.IsNullOrWhiteSpace(password_Box.Text))
+            if (string.IsNullOrWhiteSpace(userID_Box.Text) || string.IsNullOrWhiteSpace(password_Box.Password.ToString()))
             {
                 update_StatusBar("red");
                 update_StatusText("Please enter User ID and Password to continue.");
@@ -169,7 +172,7 @@ namespace ChronosClient.Views
                 return true;
             }
 
-            if (password_Box.Text.Length < 6)
+            if (password_Box.ToString().Length < 6)
             {
                 update_StatusBar("blue");
                 update_StatusText("Invalid Password.");
