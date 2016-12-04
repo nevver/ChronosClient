@@ -128,14 +128,16 @@ namespace ChronosClient.Views
                 enable_Buttons(false);
                 try
                 {
+                    DataContainer.User = userID_Box.Text.ToString();
                     HttpResponseMessage responseMessage = await "https://chronoschat.co/reg_user".PostUrlEncodedAsync(new
                     {
                         email = userID_Box.Text.ToString(),
                         password = password_Box.Password.ToString()
                     });
+                    update_StatusBar("blue");
+                    update_StatusText(DataContainer.User + " is now a registered user.");
                     string reg_Response = await responseMessage.Content.ReadAsStringAsync();
                     string sent = responseMessage.ToString();
-                    update_StatusText(reg_Response);
                     Debug.WriteLine(sent);
                     Debug.WriteLine(reg_Response.ToString());
 

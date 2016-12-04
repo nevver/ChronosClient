@@ -13,8 +13,11 @@ namespace ChronosClient
         public static string ConversationID;
         public static string User;
         public static string Recipient;
-
+        public static string KeyPairFileName;
+        public static string PublicKeyFileNamme;
+       
     }
+
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>

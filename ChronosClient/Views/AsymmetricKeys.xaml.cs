@@ -32,7 +32,7 @@ namespace ChronosClient.Views
             continueButton.IsEnabled = false;
 
 
-            //// Create a symmetric session key.
+            //// Create a symmetric session key
             //String strSymmetricAlgName = SymmetricAlgorithmNames.AesCbc;
             //UInt32 symmetricKeyLength = 32;
             //IBuffer buffSessionKey;
@@ -110,8 +110,8 @@ namespace ChronosClient.Views
                
                // create pubKeyExport file in chosen directory 
                 Windows.Storage.StorageFile pubKeyFile =
-                    await folder.CreateFileAsync("pubKeyExport.ChronosChat",
-                        Windows.Storage.CreationCollisionOption.GenerateUniqueName);
+                    await folder.CreateFileAsync(DataContainer.User + ".PublicKey",
+                        Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
                 // generate asymmetric keys
                 IBuffer buffPublicKey;
@@ -124,14 +124,16 @@ namespace ChronosClient.Views
                 string publicKeyEncded = encodeBuffTo64BaseString(buffPublicKey);
 
 
-                // write to the file selected by user
+                // write to the folder selected by user
                 await Windows.Storage.FileIO.WriteTextAsync(pubKeyFile, publicKeyEncded);
 
-                // create keypair file for application use only
+                // create keypair file for application use only for the user that is logged in
+                string keyPairName = DataContainer.User + ".KeyPair";
+                DataContainer.KeyPairFileName = keyPairName;
                 Windows.Storage.StorageFolder localFolder =
                     Windows.Storage.ApplicationData.Current.LocalFolder;
                 Windows.Storage.StorageFile keyPair =
-                    await localFolder.CreateFileAsync("keyPair.ChronosChat",
+                    await localFolder.CreateFileAsync((DataContainer.KeyPairFileName),
                         Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
                 // encode buffer into a ASCII string 
