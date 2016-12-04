@@ -122,5 +122,10 @@ namespace ChronosClient.Views
         {
             Frame.Navigate(typeof(Messages));
         }
+
+        private void generatePublicKey_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+
+        }
     }
 }

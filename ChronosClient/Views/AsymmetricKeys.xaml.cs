@@ -46,7 +46,7 @@ namespace ChronosClient.Views
             //Debug.WriteLine("Symmetric public Key only: " + text);
 
 
-            // Create an asymmetric key pair.
+            // Create an asymmetric key pair and export the public key.
             //String strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
             //UInt32 asymmetricKeyLength = 512;
             //IBuffer buffPublicKey;
@@ -86,6 +86,11 @@ namespace ChronosClient.Views
 
         }
 
+        /// <summary>
+        /// Directory selector dor public key export
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void dirSelector_Click(object sender, RoutedEventArgs e)
         {
             dirSelectorButton.IsEnabled = false;

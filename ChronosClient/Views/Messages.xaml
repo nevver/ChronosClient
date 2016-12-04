@@ -8,7 +8,11 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <ListView x:Name="listView_Messages" Height="322" VerticalAlignment="Center" Width="569" HorizontalAlignment="Center" Margin="356,168,355,230" SelectionChanged="listView_Users_SelectionChanged"/>
+        <ListView x:Name="listView_Messages" ShowsScrollingPlaceholders="False" ScrollViewer.VerticalScrollBarVisibility="Hidden" Header="" Height="322" SelectionMode="None" VerticalAlignment="Center" Width="569" HorizontalAlignment="Center" Margin="356,168,355,230" SelectionChanged="listView_Users_SelectionChanged"/>
         <TextBlock x:Name="label" HorizontalAlignment="Center"  TextWrapping="Wrap" Text="Chronos Chat" VerticalAlignment="Top" FontWeight="Light" FontSize="50" Width="295" Margin="493,94,492,0" />
+        <TextBox x:Name="textToSend" HorizontalAlignment="Left" Margin="356,603,0,0" TextWrapping="Wrap" PlaceholderText="Chronos Message" VerticalAlignment="Top" Width="586" TextChanged="textToSend_TextChanged"/>
+        <Button x:Name="sendMessageAsync" Content="Send" HorizontalAlignment="Left" Margin="838,640,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.258,-0.365" Click="sendMessage_Click" Width="104"/>
+        <Button x:Name="backToUsers" Content="Back" HorizontalAlignment="Left" Margin="729,640,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.258,-0.365" Click="backToUsers_Click" Width="104"/>
+        <Button x:Name="generatePublicKey" Content="Export Public Key" HorizontalAlignment="Left" Margin="356,640,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.258,-0.365" Width="146" Click="generatePublicKey_Click"/>
     </Grid>
 </Page>

@@ -107,9 +107,12 @@ namespace ChronosClient.Views
         private static Boolean checkKeysDirectory()
         {
 
+            //Needs implementation
+
+
             //Automatically skips direcory check when true
             // Changed for debugging purposes
-            return true;
+            return false;
             
         }
 

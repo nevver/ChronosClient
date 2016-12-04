@@ -4,10 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
+using Windows.UI;
 using Windows.UI.Xaml.Controls;
-
-
-
+using Windows.UI.Xaml.Media;
 
 namespace ChronosClient.Views
 {
@@ -16,6 +15,13 @@ namespace ChronosClient.Views
     /// </summary>
     public sealed partial class Messages : Page
     {
+        private static string message;
+
+        public class MessageStatus
+        {
+            public string status { get; set; }
+        }
+
         public Messages()
         {
             this.InitializeComponent();
@@ -50,22 +56,76 @@ namespace ChronosClient.Views
                         string jsonResponse = await content.ReadAsStringAsync();
                         Debug.WriteLine("Json response: " + jsonResponse);
                         RootObject data = JsonConvert.DeserializeObject<RootObject>(jsonResponse);
-                        RootError failure = JsonConvert.DeserializeObject<RootError>(jsonResponse);
-                        //string errorMessage = failure.error.ToString();
                         
+                        
+                        if (data.messages.Count == 0)
+                        {
+                            listView_Messages.Items.Add("No messages");
+                        }
+                        else
+                        {
                             for (int i = 0; i < data.messages.Count; i++)
                             {
-                                string user = data.messages[i].user_email;
-                                string createdAt = data.messages[i].created_at;
-                                string body = data.messages[i].body;
-                                listView_Messages.Items.Add(user + ": " + body + " at " + createdAt);
+                                
+                                if (data.messages[i].user_email == DataContainer.User)
+                                {
+                                    
+                                    TextBlock user = new TextBlock();
+                                    user.FontSize = 14;
+                                    user.Foreground = new SolidColorBrush(Colors.Gray);
+                                    user.Width = 535;
+                                    user.TextAlignment = Windows.UI.Xaml.TextAlignment.Right;
+                                    user.Text = data.messages[i].user_email + "  at " + data.messages[i].created_at;
+                                    listView_Messages.Items.Add(user);
+
+                                    
+                                    TextBlock space = new TextBlock();
+
+                                    TextBlock body = new TextBlock();
+                                    body.FontSize = 26;
+                                    body.Width = 535;
+                                    body.Foreground = new SolidColorBrush(Colors.DodgerBlue);
+                                    body.TextAlignment = Windows.UI.Xaml.TextAlignment.Right;
+                                    body.Text = data.messages[i].body;
+                                    listView_Messages.Items.Add(body);
+                                    listView_Messages.Items.Add(space);
+
+                                }
+                                else if (data.messages[i].user_email == DataContainer.Recipient)
+                                {
+                                    TextBlock user = new TextBlock();
+                                    user.IsColorFontEnabled = true;
+                                    user.FontSize = 14;
+                                    user.Foreground = new SolidColorBrush(Colors.Gray);
+                                    user.Width = 535;
+                                    user.TextAlignment = Windows.UI.Xaml.TextAlignment.Left;
+                                    user.Text = data.messages[i].user_email + "  at " + data.messages[i].created_at;
+                                    listView_Messages.Items.Add(user);
+
+                                    
+                                    
+                                    TextBlock space = new TextBlock();
+                                    TextBlock body = new TextBlock();
+                                    body.FontSize = 26;
+                                    body.Width = 535;
+                                    body.Foreground = new SolidColorBrush(Colors.DodgerBlue);
+                                    body.TextAlignment = Windows.UI.Xaml.TextAlignment.Left;
+                                    body.Text = data.messages[i].body;
+                                    listView_Messages.Items.Add(body);
+                                    listView_Messages.Items.Add(space);
+                                }
+
+                                
+                               
                             }
+                        }
+                           
                     }
                 }
             }
         }
 
-        private async void ErrorNotAuthenticated(string s)
+        private async void ErrorMessageDialogBox(string s)
         {
             ContentDialog error = new ContentDialog()
             {
@@ -103,6 +163,67 @@ namespace ChronosClient.Views
         public class RootObject
         {
             public List<Message> messages { get; set; }
+        }
+
+        private void textToSend_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            message = textToSend.Text;
+        }
+
+        private async void sendMessage_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+
+
+            if (message != null)
+            {
+                sendMessageAsync.IsEnabled = false;
+                try
+                {
+                    string accessToken = DataContainer.Token;
+                    HttpResponseMessage responseMessage = await "https://chronoschat.co/messages/create".WithHeader("Authorization", "Bearer " + accessToken).PostUrlEncodedAsync(new
+                    {
+
+                        conversation_id = DataContainer.ConversationID,
+                        body = message
+
+                    });
+
+                    string createMessageResponse = await responseMessage.Content.ReadAsStringAsync();
+                    string sent = responseMessage.ToString();
+                    MessageStatus json = JsonConvert.DeserializeObject<MessageStatus>(createMessageResponse);
+
+                    string status = json.status;
+                    if (status == "Message Sent")
+                    {
+                        Frame.Navigate(typeof(Messages));
+                    }
+                    else 
+                    {
+                        ErrorMessageDialogBox(status);
+                    }
+
+                }
+                catch (HttpRequestException hre)
+                {
+                    ErrorMessageDialogBox(hre.ToString());
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessageDialogBox(ex.ToString());
+                }
+
+            }
+
+        }
+
+        private void backToUsers_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(ListUsers));
+        }
+
+        private void generatePublicKey_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+
         }
     }
 
