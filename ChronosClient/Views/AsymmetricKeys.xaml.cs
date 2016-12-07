@@ -18,10 +18,10 @@ namespace ChronosClient.Views
     /// </summary>
     public sealed partial class AsymmetricKeys : Page
     {
-        private static IBuffer buffKeyPair;
+        //private static IBuffer buffKeyPair;
         private IBuffer buffDecryptedSessionKey;
         private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
-        private static UInt32 asymmetricKeyLength = 512;
+        private static UInt32 asymmetricKeyLength = 2048;
 
 
         public AsymmetricKeys()
@@ -97,7 +97,7 @@ namespace ChronosClient.Views
             dirSelectorButton.Visibility = Visibility.Collapsed;
             var folderPicker = new Windows.Storage.Pickers.FolderPicker();
             folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
-            folderPicker.FileTypeFilter.Add(".ChronosChat");
+            folderPicker.FileTypeFilter.Add(".PublicKey");
 
             Windows.Storage.StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder != null)
@@ -114,14 +114,14 @@ namespace ChronosClient.Views
                         Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
                 // generate asymmetric keys
-                IBuffer buffPublicKey;
+               // IBuffer buffPublicKey;
                 this.createAsymmetricKeyPair(
                     strAsymmetricAlgName,
                     asymmetricKeyLength,
-                    out buffPublicKey);
+                    out DataContainer.buffPublicKey);
 
                 // encode buffer into a ASCII string 
-                string publicKeyEncded = encodeBuffTo64BaseString(buffPublicKey);
+                string publicKeyEncded = encodeBuffTo64BaseString(DataContainer.buffPublicKey);
 
 
                 // write to the folder selected by user
@@ -137,7 +137,7 @@ namespace ChronosClient.Views
                         Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
                 // encode buffer into a ASCII string 
-                string keyPairEncod = encodeBuffTo64BaseString(buffKeyPair);
+                string keyPairEncod = encodeBuffTo64BaseString(DataContainer.buffKeyPair);
 
                 // write to the file the app uses
                 await Windows.Storage.FileIO.WriteTextAsync(keyPair, keyPairEncod);
@@ -196,7 +196,7 @@ namespace ChronosClient.Views
             // You should keep your private key (embedded in the key pair) secure. For  
             // the purposes of this example, however, we're just copying it into a
             // static class variable for later use during decryption.
-            AsymmetricKeys.buffKeyPair = keyPair.Export();
+            DataContainer.buffKeyPair = keyPair.Export();
         }
 
         // method to encrypt plain text
@@ -229,7 +229,7 @@ namespace ChronosClient.Views
             // Import the public key from a buffer. You should keep your private key
             // secure. For the purposes of this example, however, the private key is
             // just stored in a static class variable.
-            CryptographicKey keyPair = objAsymmAlgProv.ImportKeyPair(AsymmetricKeys.buffKeyPair);
+            CryptographicKey keyPair = objAsymmAlgProv.ImportKeyPair(DataContainer.buffKeyPair);
 
             // Use the private key embedded in the key pair to decrypt the session key.
             buffDecryptedSessionKey = CryptographicEngine.Decrypt(keyPair, buffEncryptedMessageBody, null);
@@ -267,7 +267,7 @@ namespace ChronosClient.Views
             // Import the public key from a buffer. You should keep your private key
             // secure. For the purposes of this example, however, the private key is
             // just stored in a static class variable.
-            CryptographicKey keyPair = objAsymmAlgProv.ImportKeyPair(AsymmetricKeys.buffKeyPair);
+            CryptographicKey keyPair = objAsymmAlgProv.ImportKeyPair(DataContainer.buffKeyPair);
 
             // Use the private key embedded in the key pair to decrypt the session key.
             buffDecryptedSessionKey = CryptographicEngine.Decrypt(keyPair, buffEncryptedSessionKey, null);

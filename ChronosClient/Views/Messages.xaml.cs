@@ -4,9 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
+using Windows.Security.Cryptography;
+using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+
 
 namespace ChronosClient.Views
 {
@@ -16,6 +19,19 @@ namespace ChronosClient.Views
     public sealed partial class Messages : Page
     {
         private static string message;
+        //private object buffPublicKey;
+
+        public IBuffer decode64BaseString(string str)
+        {
+            IBuffer buffFromBase64String = CryptographicBuffer.DecodeFromBase64String(str);
+            return buffFromBase64String;
+        }
+
+        public string encodeBuffTo64BaseString(IBuffer buff)
+        {
+            string strBase64 = CryptographicBuffer.EncodeToBase64String(buff);
+            return strBase64;
+        }
 
         public class MessageStatus
         {
@@ -56,8 +72,8 @@ namespace ChronosClient.Views
                         string jsonResponse = await content.ReadAsStringAsync();
                         Debug.WriteLine("Json response: " + jsonResponse);
                         RootObject data = JsonConvert.DeserializeObject<RootObject>(jsonResponse);
-                        
-                        
+
+
                         if (data.messages.Count == 0)
                         {
                             listView_Messages.Items.Add("No messages");
@@ -66,10 +82,10 @@ namespace ChronosClient.Views
                         {
                             for (int i = 0; i < data.messages.Count; i++)
                             {
-                                
+
                                 if (data.messages[i].user_email == DataContainer.User)
                                 {
-                                    
+
                                     TextBlock user = new TextBlock();
                                     user.FontSize = 14;
                                     user.Foreground = new SolidColorBrush(Colors.Gray);
@@ -78,7 +94,7 @@ namespace ChronosClient.Views
                                     user.Text = data.messages[i].user_email + "  at " + data.messages[i].created_at;
                                     listView_Messages.Items.Add(user);
 
-                                    
+
                                     TextBlock space = new TextBlock();
 
                                     TextBlock body = new TextBlock();
@@ -102,8 +118,8 @@ namespace ChronosClient.Views
                                     user.Text = data.messages[i].user_email + "  at " + data.messages[i].created_at;
                                     listView_Messages.Items.Add(user);
 
-                                    
-                                    
+
+
                                     TextBlock space = new TextBlock();
                                     TextBlock body = new TextBlock();
                                     body.FontSize = 26;
@@ -115,11 +131,11 @@ namespace ChronosClient.Views
                                     listView_Messages.Items.Add(space);
                                 }
 
-                                
-                               
+
+
                             }
                         }
-                           
+
                     }
                 }
             }
@@ -132,7 +148,7 @@ namespace ChronosClient.Views
                 Title = "Error",
                 Content = "Content failed to load, try again. Reason:  " + s,
                 PrimaryButtonText = "Ok",
-                
+
             };
 
             await error.ShowAsync();
@@ -197,7 +213,7 @@ namespace ChronosClient.Views
                     {
                         Frame.Navigate(typeof(Messages));
                     }
-                    else 
+                    else
                     {
                         ErrorMessageDialogBox(status);
                     }
@@ -221,10 +237,62 @@ namespace ChronosClient.Views
             Frame.Navigate(typeof(ListUsers));
         }
 
-        private void generatePublicKey_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        private async void generatePublicKey_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
+            generatePublicKey.IsEnabled = false;
+            generatePublicKey.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+            folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
+            folderPicker.FileTypeFilter.Add(".PublicKey");
+
+            Windows.Storage.StorageFolder folder = await folderPicker.PickSingleFolderAsync();
+            if (folder != null)
+            {
+                // Application now has read/write access to all contents in the picked folder
+                // (including other sub-folder contents)
+                Windows.Storage.AccessCache.StorageApplicationPermissions.
+                 FutureAccessList.AddOrReplace("PickedFolderToken", folder);
+
+
+                // create pubKeyExport file in chosen directory 
+                Windows.Storage.StorageFile pubKeyFile =
+                    await folder.CreateFileAsync(DataContainer.User + ".PublicKey",
+                        Windows.Storage.CreationCollisionOption.ReplaceExisting);
+
+                // generate asymmetric keys
+                // IBuffer buffPublicKey;
+                //this.createAsymmetricKeyPair(
+                //    strAsymmetricAlgName,
+                //    asymmetricKeyLength,
+                //    out DataContainer.buffPublicKey);
+
+                // encode buffer into a ASCII string 
+                string publicKeyEncded = encodeBuffTo64BaseString(DataContainer.buffPublicKey);
+
+
+                // write to the folder selected by user
+                await Windows.Storage.FileIO.WriteTextAsync(pubKeyFile, publicKeyEncded);
+
+                //// create keypair file for application use only for the user that is logged in
+                //string keyPairName = DataContainer.User + ".KeyPair";
+                //DataContainer.KeyPairFileName = keyPairName;
+                //Windows.Storage.StorageFolder localFolder =
+                //    Windows.Storage.ApplicationData.Current.LocalFolder;
+                //Windows.Storage.StorageFile keyPair =
+                //    await localFolder.CreateFileAsync((DataContainer.KeyPairFileName),
+                //        Windows.Storage.CreationCollisionOption.ReplaceExisting);
+
+                //// encode buffer into a ASCII string 
+                //string keyPairEncod = encodeBuffTo64BaseString(DataContainer.buffKeyPair);
+
+                //// write to the file the app uses
+                //await Windows.Storage.FileIO.WriteTextAsync(keyPair, keyPairEncod);
+
+            }
+
+            generatePublicKey.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            generatePublicKey.IsEnabled = true;
 
         }
     }
-
 }

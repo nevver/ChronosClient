@@ -53,7 +53,7 @@ namespace ChronosClient.Views
                 try
                 {
                    
-                    HttpResponseMessage responseMessage = await "https://chronoschat.co/auth_user".PostUrlEncodedAsync(new
+                    HttpResponseMessage responseMessage = await "https://chronoschat.co/authenticate".PostUrlEncodedAsync(new
                     {
 
                         email = userID_Box.Text.ToString(),
@@ -129,7 +129,7 @@ namespace ChronosClient.Views
                 try
                 {
                     DataContainer.User = userID_Box.Text.ToString();
-                    HttpResponseMessage responseMessage = await "https://chronoschat.co/reg_user".PostUrlEncodedAsync(new
+                    HttpResponseMessage responseMessage = await "https://chronoschat.co/registration".PostUrlEncodedAsync(new
                     {
                         email = userID_Box.Text.ToString(),
                         password = password_Box.Password.ToString()
