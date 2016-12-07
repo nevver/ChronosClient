@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Security.Cryptography;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -25,6 +17,7 @@ namespace ChronosClient.Views
         public ImportRecipientsPublicKey()
         {
             this.InitializeComponent();
+            this.continueButton.IsEnabled = false;
             this.continueButton.Visibility = Visibility.Collapsed;
         }
 
@@ -35,12 +28,55 @@ namespace ChronosClient.Views
 
         private void continue_Click(object sender, RoutedEventArgs e)
         {
+            Frame.Navigate(typeof(Messages));
+        }
+
+        public IBuffer decode64BaseString(string str)
+        {
+            IBuffer buffFromBase64String = CryptographicBuffer.DecodeFromBase64String(str);
+            return buffFromBase64String;
+        }
+
+        public string encodeBuffTo64BaseString(IBuffer buff)
+        {
+            string strBase64 = CryptographicBuffer.EncodeToBase64String(buff);
+            return strBase64;
+        }
+
+        private async void fileImport_Click(object sender, RoutedEventArgs e)
+        {
+            this.continueButton.Visibility = Visibility.Visible;
+            dirSelectorButton.IsEnabled = false;
+            dirSelectorButton.Visibility = Visibility.Collapsed;
+            var filePicker = new Windows.Storage.Pickers.FileOpenPicker();
+            filePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
+            filePicker.FileTypeFilter.Add(".PublicKey");
+
+            // Picks folder to write to
+            Windows.Storage.StorageFile file = await filePicker.PickSingleFileAsync();
+            if (file != null)
+            {
+                // Application now has read/write access to all contents in the picked folder
+                // (including other sub-folder contents)
+                Windows.Storage.AccessCache.StorageApplicationPermissions.
+                 FutureAccessList.AddOrReplace("PickedFileToken", file);
+
+
+                string recipientPublicKeyString = await Windows.Storage.FileIO.ReadTextAsync(file);
+
+                // decode string into buffer
+                DataContainer.decodedRecipientPublicKey = decode64BaseString(recipientPublicKeyString);
+
+            }
+
+            continueButton.Visibility = Visibility.Visible;
+            continueButton.IsEnabled = true;
 
         }
 
-        private void fileImport_Click(object sender, RoutedEventArgs e)
+        private void Logout_Checked(object sender, RoutedEventArgs e)
         {
-
+            Frame.Navigate(typeof(Login));
         }
     }
 }

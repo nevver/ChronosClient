@@ -15,5 +15,6 @@
             <Button x:Name="continueButton" Content="Continue" HorizontalAlignment="Left" Margin="898,341,0,0" VerticalAlignment="Top" Click="continue_Click" Width="104"/>
             <Button x:Name="backButton" Content="Back" HorizontalAlignment="Left" Margin="789,341,0,0" VerticalAlignment="Top" Click="back_Click" Width="104"/>
         </Grid>
+        <AppBarToggleButton x:Name="Logout" HorizontalAlignment="Left" Icon="Accept" Label="Logout" Margin="1212,0,0,0" VerticalAlignment="Top" Checked="Logout_Checked"/>
     </Grid>
 </Page>

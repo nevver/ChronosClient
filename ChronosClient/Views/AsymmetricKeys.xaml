@@ -14,5 +14,6 @@
         <Button x:Name="dirSelectorButton" Content="Select Folder" HorizontalAlignment="Left" Margin="898,341,0,0" VerticalAlignment="Top" Click="dirSelector_Click"/>
         <TextBlock x:Name="directory" HorizontalAlignment="Center"  TextWrapping="Wrap"  FontSize="20" Text="" VerticalAlignment="Top" Margin="287,428,286,0"/>
         <Button x:Name="continueButton" Content="Continue" HorizontalAlignment="Left" Margin="898,341,0,0" VerticalAlignment="Top" Click="continue_Click" Width="104"/>
+        <AppBarToggleButton x:Name="Logout" HorizontalAlignment="Left" Icon="Accept" Label="Logout" Margin="1212,0,0,0" VerticalAlignment="Top" Checked="Logout_Checked"/>
     </Grid>
 </Page>

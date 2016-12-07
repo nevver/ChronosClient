@@ -294,5 +294,10 @@ namespace ChronosClient.Views
             generatePublicKey.IsEnabled = true;
 
         }
+
+        private void Logout_Checked(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(Login));
+        }
     }
 }

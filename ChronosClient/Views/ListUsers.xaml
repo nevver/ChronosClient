@@ -13,5 +13,6 @@
         <TextBlock x:Name="startChatMessage" HorizontalAlignment="Left" Margin="380,218,0,0" TextWrapping="Wrap" FontStyle="Italic" FontSize="20" Text="Select a user to start chatting!" VerticalAlignment="Top"/>
         <Button x:Name="next_Button" Content="Continue" HorizontalAlignment="Left" Margin="817,648,0,0" VerticalAlignment="Top" Click="next_Button_Click" Width="104"/>
         <Button x:Name="generatePublicKey" Content="Export Public Key" HorizontalAlignment="Left" Margin="356,648,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.258,-0.365" Width="146" Click="generatePublicKey_Click"/>
+        <AppBarToggleButton x:Name="Logout" HorizontalAlignment="Left" Icon="Accept" Label="Logout" Margin="1212,0,0,0" VerticalAlignment="Top" Checked="Logout_Checked"/>
     </Grid>
 </Page>

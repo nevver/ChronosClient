@@ -99,6 +99,7 @@ namespace ChronosClient.Views
             folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.Desktop;
             folderPicker.FileTypeFilter.Add(".PublicKey");
 
+            // Picks folder to write to
             Windows.Storage.StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder != null)
             {
@@ -204,7 +205,7 @@ namespace ChronosClient.Views
             String strAsymmetricAlgName,
             IBuffer buffMessageToEncrypt,
             IBuffer buffPublicKey,
-            out IBuffer buffEncryptedSessionKey)
+            out IBuffer buffEncryptedMessage)
         {
             // Open the algorithm provider for the specified asymmetric algorithm.
             AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
@@ -213,7 +214,7 @@ namespace ChronosClient.Views
             CryptographicKey publicKey = objAlgProv.ImportPublicKey(buffPublicKey);
 
             // Encrypt the session key by using the public key.
-            buffEncryptedSessionKey = CryptographicEngine.Encrypt(publicKey, buffMessageToEncrypt, null);
+            buffEncryptedMessage = CryptographicEngine.Encrypt(publicKey, buffMessageToEncrypt, null);
 
         }
 
@@ -281,6 +282,11 @@ namespace ChronosClient.Views
         private void continue_Click(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(ListUsers));
+        }
+
+        private void Logout_Checked(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(Login));
         }
     }
 

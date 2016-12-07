@@ -18,6 +18,7 @@ namespace ChronosClient
         public static string PublicKeyFileNamme;
         public static IBuffer buffKeyPair;
         public static IBuffer buffPublicKey;
+        public static IBuffer decodedRecipientPublicKey;
 
     }
 
