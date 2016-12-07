@@ -122,7 +122,8 @@ namespace ChronosClient.Views
 
         private void next_Button_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(Messages));
+
+            Frame.Navigate(typeof(ImportRecipientsPublicKey));
         }
 
         public IBuffer decode64BaseString(string str)
@@ -160,34 +161,12 @@ namespace ChronosClient.Views
                         await folder.CreateFileAsync(DataContainer.User + ".PublicKey",
                             Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
-                    // generate asymmetric keys
-                    // IBuffer buffPublicKey;
-                    //this.createAsymmetricKeyPair(
-                    //    strAsymmetricAlgName,
-                    //    asymmetricKeyLength,
-                    //    out DataContainer.buffPublicKey);
-
                     // encode buffer into a ASCII string 
                     string publicKeyEncded = encodeBuffTo64BaseString(DataContainer.buffPublicKey);
 
 
                     // write to the folder selected by user
                     await Windows.Storage.FileIO.WriteTextAsync(pubKeyFile, publicKeyEncded);
-
-                    //// create keypair file for application use only for the user that is logged in
-                    //string keyPairName = DataContainer.User + ".KeyPair";
-                    //DataContainer.KeyPairFileName = keyPairName;
-                    //Windows.Storage.StorageFolder localFolder =
-                    //    Windows.Storage.ApplicationData.Current.LocalFolder;
-                    //Windows.Storage.StorageFile keyPair =
-                    //    await localFolder.CreateFileAsync((DataContainer.KeyPairFileName),
-                    //        Windows.Storage.CreationCollisionOption.ReplaceExisting);
-
-                    //// encode buffer into a ASCII string 
-                    //string keyPairEncod = encodeBuffTo64BaseString(DataContainer.buffKeyPair);
-
-                    //// write to the file the app uses
-                    //await Windows.Storage.FileIO.WriteTextAsync(keyPair, keyPairEncod);
 
                 }
 
