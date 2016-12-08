@@ -8,6 +8,8 @@ using System.Diagnostics;
 using Flurl.Http;
 using Newtonsoft.Json;
 using Windows.Storage;
+using Windows.Storage.Streams;
+using Windows.Security.Cryptography;
 
 namespace ChronosClient.Views
 {
@@ -70,11 +72,12 @@ namespace ChronosClient.Views
                     Debug.WriteLine(sent);
                     Debug.WriteLine(login_Response.ToString());
                     Debug.WriteLine(DataContainer.Token);
-                    if (checkKeysDirectory() == false)
+                    Boolean keyCheck = await checkKeysDirectory();
+                    if (keyCheck == false)
                     {
                         Frame.Navigate(typeof(AsymmetricKeys));
                     }
-                    else if (checkKeysDirectory() == true)
+                    else if (keyCheck == true)
                     {
                         Frame.Navigate(typeof(ListUsers));
                     }
@@ -94,7 +97,17 @@ namespace ChronosClient.Views
             }
         }
 
+        internal static IBuffer decode64BaseString(string str)
+        {
+            IBuffer buffFromBase64String = CryptographicBuffer.DecodeFromBase64String(str);
+            return buffFromBase64String;
+        }
 
+        public string encodeBuffTo64BaseString(IBuffer buff)
+        {
+            string strBase64 = CryptographicBuffer.EncodeToBase64String(buff);
+            return strBase64;
+        }
 
         /// <summary>
         /// Checks directory for keys and returns a boolean
@@ -104,16 +117,26 @@ namespace ChronosClient.Views
         /// 
         /// </summary>
         /// <returns></returns>
-        private static Boolean checkKeysDirectory()
+        private static async System.Threading.Tasks.Task<bool> checkKeysDirectory()
         {
 
-            //Needs implementation
-
-
-            //Automatically skips direcory check when true
-            // Changed for debugging purposes
-            return false;
+            // read keypair for sender if it exists
+            StorageFolder localFolder =
+               ApplicationData.Current.LocalFolder;
+            StorageFile senderKeyPair =
+                await localFolder.GetFileAsync(DataContainer.User + ".KeyPair");
+            if (senderKeyPair != null)
+            {
+                string keyPairText = await FileIO.ReadTextAsync(senderKeyPair);
+                DataContainer.senderKeyPair = decode64BaseString(keyPairText);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
             
+
         }
 
         /// <summary>

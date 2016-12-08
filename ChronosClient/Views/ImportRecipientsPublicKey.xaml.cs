@@ -67,6 +67,12 @@ namespace ChronosClient.Views
                 // decode string into buffer
                 DataContainer.recipientPublicKey = decode64BaseString(recipientPublicKeyString);
 
+                // write the public key import to memory for later access
+                Windows.Storage.StorageFolder localFolder =
+                   Windows.Storage.ApplicationData.Current.LocalFolder;
+                Windows.Storage.StorageFile recipientPublicKey =
+                    await localFolder.CreateFileAsync((DataContainer.User + ".PublicKey"), Windows.Storage.CreationCollisionOption.OpenIfExists);
+
             }
 
             continueButton.Visibility = Visibility.Visible;
