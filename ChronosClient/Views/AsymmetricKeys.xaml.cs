@@ -119,10 +119,10 @@ namespace ChronosClient.Views
                 this.createAsymmetricKeyPair(
                     strAsymmetricAlgName,
                     asymmetricKeyLength,
-                    out DataContainer.buffPublicKey);
+                    out DataContainer.senderPublicKey);
 
                 // encode buffer into a ASCII string 
-                string publicKeyEncded = encodeBuffTo64BaseString(DataContainer.buffPublicKey);
+                string publicKeyEncded = encodeBuffTo64BaseString(DataContainer.senderPublicKey);
 
 
                 // write to the folder selected by user
@@ -138,7 +138,7 @@ namespace ChronosClient.Views
                         Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
                 // encode buffer into a ASCII string 
-                string keyPairEncod = encodeBuffTo64BaseString(DataContainer.buffKeyPair);
+                string keyPairEncod = encodeBuffTo64BaseString(DataContainer.senderKeyPair);
 
                 // write to the file the app uses
                 await Windows.Storage.FileIO.WriteTextAsync(keyPair, keyPairEncod);
@@ -197,7 +197,7 @@ namespace ChronosClient.Views
             // You should keep your private key (embedded in the key pair) secure. For  
             // the purposes of this example, however, we're just copying it into a
             // static class variable for later use during decryption.
-            DataContainer.buffKeyPair = keyPair.Export();
+            DataContainer.senderKeyPair = keyPair.Export();
         }
 
         // method to encrypt plain text
@@ -230,7 +230,7 @@ namespace ChronosClient.Views
             // Import the public key from a buffer. You should keep your private key
             // secure. For the purposes of this example, however, the private key is
             // just stored in a static class variable.
-            CryptographicKey keyPair = objAsymmAlgProv.ImportKeyPair(DataContainer.buffKeyPair);
+            CryptographicKey keyPair = objAsymmAlgProv.ImportKeyPair(DataContainer.senderKeyPair);
 
             // Use the private key embedded in the key pair to decrypt the session key.
             buffDecryptedSessionKey = CryptographicEngine.Decrypt(keyPair, buffEncryptedMessageBody, null);
@@ -268,7 +268,7 @@ namespace ChronosClient.Views
             // Import the public key from a buffer. You should keep your private key
             // secure. For the purposes of this example, however, the private key is
             // just stored in a static class variable.
-            CryptographicKey keyPair = objAsymmAlgProv.ImportKeyPair(DataContainer.buffKeyPair);
+            CryptographicKey keyPair = objAsymmAlgProv.ImportKeyPair(DataContainer.senderKeyPair);
 
             // Use the private key embedded in the key pair to decrypt the session key.
             buffDecryptedSessionKey = CryptographicEngine.Decrypt(keyPair, buffEncryptedSessionKey, null);

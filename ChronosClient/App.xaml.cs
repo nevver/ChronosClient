@@ -8,18 +8,18 @@ using Windows.UI.Xaml.Navigation;
 
 namespace ChronosClient
 {
-    public static class DataContainer
+    internal static class DataContainer
     {
-        public static string Token;
-        public static string ConversationID;
-        public static string User;
-        public static string Recipient;
-        public static string KeyPairFileName;
-        public static string PublicKeyFileNamme;
-        public static IBuffer buffKeyPair;
-        public static IBuffer buffPublicKey;
-        public static IBuffer decodedRecipientPublicKey;
-
+        internal static string Token;
+        internal static string ConversationID;
+        internal static string User;
+        internal static string Recipient;
+        internal static string KeyPairFileName;
+        internal static string PublicKeyFileNamme;
+        internal static IBuffer senderKeyPair;
+        internal static IBuffer senderPublicKey;
+        internal static IBuffer recipientPublicKey;
+        internal static IBuffer buffPlainText;
     }
 
     /// <summary>

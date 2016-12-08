@@ -65,7 +65,7 @@ namespace ChronosClient.Views
                 string recipientPublicKeyString = await Windows.Storage.FileIO.ReadTextAsync(file);
 
                 // decode string into buffer
-                DataContainer.decodedRecipientPublicKey = decode64BaseString(recipientPublicKeyString);
+                DataContainer.recipientPublicKey = decode64BaseString(recipientPublicKeyString);
 
             }
 

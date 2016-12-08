@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
 using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Xaml.Controls;
@@ -19,6 +20,8 @@ namespace ChronosClient.Views
     public sealed partial class Messages : Page
     {
         private static string message;
+        private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
+        private static UInt32 asymmetricKeyLength = 2048;
         //private object buffPublicKey;
 
         public IBuffer decode64BaseString(string str)
@@ -186,6 +189,42 @@ namespace ChronosClient.Views
             message = textToSend.Text;
         }
 
+        // method to encrypt plain text
+        public void asymemtricEncryptMessageBody(
+            String strAsymmetricAlgName,
+            IBuffer buffMessageToEncrypt,
+            IBuffer buffPublicKey,
+            out IBuffer buffEncryptedMessage)
+        {
+            // Open the algorithm provider for the specified asymmetric algorithm.
+            AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
+
+            // Import the public key from a buffer.
+            CryptographicKey publicKey = objAlgProv.ImportPublicKey(buffPublicKey);
+
+            // Encrypt the session key by using the public key.
+            buffEncryptedMessage = CryptographicEngine.Encrypt(publicKey, buffMessageToEncrypt, null);
+
+        }
+
+        // method to decrypt ciphertext
+        public void asymmetricDecryptMessageBody(
+    String strAsymmetricAlgName,
+    String strSymmetricAlgName,
+    IBuffer buffEncryptedMessageBody)
+        {
+            // Open the algorithm provider for the specified asymmetric algorithm.
+            AsymmetricKeyAlgorithmProvider objAsymmAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
+
+            // Import the public key from a buffer. You should keep your private key
+            // secure. For the purposes of this example, however, the private key is
+            // just stored in a static class variable.
+            CryptographicKey keyPair = objAsymmAlgProv.ImportKeyPair(DataContainer.senderKeyPair);
+
+            // Use the private key embedded in the key pair to decrypt the session key.
+            DataContainer.buffPlainText = CryptographicEngine.Decrypt(keyPair, buffEncryptedMessageBody, null);
+        }
+
         private async void sendMessage_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
 
@@ -267,7 +306,7 @@ namespace ChronosClient.Views
                 //    out DataContainer.buffPublicKey);
 
                 // encode buffer into a ASCII string 
-                string publicKeyEncded = encodeBuffTo64BaseString(DataContainer.buffPublicKey);
+                string publicKeyEncded = encodeBuffTo64BaseString(DataContainer.senderPublicKey);
 
 
                 // write to the folder selected by user

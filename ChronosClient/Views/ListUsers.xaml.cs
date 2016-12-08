@@ -162,7 +162,7 @@ namespace ChronosClient.Views
                             Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
                     // encode buffer into a ASCII string 
-                    string publicKeyEncded = encodeBuffTo64BaseString(DataContainer.buffPublicKey);
+                    string publicKeyEncded = encodeBuffTo64BaseString(DataContainer.senderPublicKey);
 
 
                     // write to the folder selected by user
