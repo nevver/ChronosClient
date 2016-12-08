@@ -9,6 +9,7 @@ using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
@@ -243,7 +244,7 @@ namespace ChronosClient.Views
         }
 
         // method to decrypt ciphertext
-        public void asymmetricDecryptMessageBody(
+        public async void asymmetricDecryptMessageBody(
     String strAsymmetricAlgName,
     IBuffer buffEncryptedMessageBody)
         {
@@ -259,9 +260,11 @@ namespace ChronosClient.Views
             catch (System.ArgumentException ar)
             {
                 Debug.WriteLine(ar.ToString());
-                CoreApplication.Exit();
+                var dialog = new MessageDialog("Error: Key Mismatch. Unable to display new messages.");
+                await dialog.ShowAsync();
+                // CoreApplication.Exit();
             }
-            
+
 
             //convert to string
             message = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, decryptedMessage);
