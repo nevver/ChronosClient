@@ -125,27 +125,32 @@ namespace ChronosClient.Views
             // read keypair for sender if it exists
             StorageFolder localFolder =
                ApplicationData.Current.LocalFolder;
-            StorageFile senderKeyPair =
+            try
+            {
+                StorageFile senderKeyPair =
                 await localFolder.GetFileAsync(DataContainer.User + ".KeyPair");
-            if (senderKeyPair != null)
-            {
-                string keyPairText = await FileIO.ReadTextAsync(senderKeyPair);
-                // buffer from text
-                DataContainer.senderKeyPair = decode64BaseString(keyPairText);
-                // Open the algorithm provider for the specified asymmetric algorithm.
-                AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
+                if (senderKeyPair != null)
+                {
+                    string keyPairText = await FileIO.ReadTextAsync(senderKeyPair);
+                    // buffer from text
+                    DataContainer.senderKeyPair = decode64BaseString(keyPairText);
+                    // Open the algorithm provider for the specified asymmetric algorithm.
+                    AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
 
-                // Import the public key from a buffer.
-                CryptographicKey keyPair = objAlgProv.ImportKeyPair(DataContainer.senderKeyPair);
-                DataContainer.senderPublicKey = keyPair.ExportPublicKey();
+                    // Import the public key from a buffer.
+                    CryptographicKey keyPair = objAlgProv.ImportKeyPair(DataContainer.senderKeyPair);
+                    DataContainer.senderPublicKey = keyPair.ExportPublicKey();
 
-                return true;
+                    return true;
+                }
+
             }
-            else
+            catch (System.IO.FileNotFoundException ex)
             {
-                return false;
+                Debug.WriteLine(ex.ToString());
             }
-            
+
+            return false;
 
         }
 
