@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
 
 namespace ChronosClient.Views
 {
@@ -18,6 +19,7 @@ namespace ChronosClient.Views
     /// </summary>
     public sealed partial class Login : Page
     {
+        private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
         /// <summary>
         /// Static variables
         /// </summary>
@@ -128,7 +130,15 @@ namespace ChronosClient.Views
             if (senderKeyPair != null)
             {
                 string keyPairText = await FileIO.ReadTextAsync(senderKeyPair);
+                // buffer from text
                 DataContainer.senderKeyPair = decode64BaseString(keyPairText);
+                // Open the algorithm provider for the specified asymmetric algorithm.
+                AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
+
+                // Import the public key from a buffer.
+                CryptographicKey keyPair = objAlgProv.ImportKeyPair(DataContainer.senderKeyPair);
+                DataContainer.senderPublicKey = keyPair.ExportPublicKey();
+
                 return true;
             }
             else
@@ -267,6 +277,11 @@ namespace ChronosClient.Views
         private void password_Box_TextChanged(object sender, TextChangedEventArgs e)
         {
 
+        }
+
+        private void EncryptionTest_Checked(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(EncryptionTest));
         }
     }
 

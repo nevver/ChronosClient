@@ -1,0 +1,24 @@
+﻿<Page
+    x:Class="ChronosClient.Views.EncryptionTest"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ChronosClient.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <TextBlock x:Name="label" HorizontalAlignment="Center"  TextWrapping="Wrap" Text="Chronos Chat" VerticalAlignment="Top" FontWeight="Light" FontSize="50" Width="295" Margin="493,94,492,0" />
+        <TextBox x:Name="plain" HorizontalAlignment="Center" TextWrapping="Wrap" PlaceholderText="Plain Text" VerticalAlignment="Top" Height="143" Margin="501,218,501,0" Width="278" TextChanged="plain_TextChanged" />
+        <Button x:Name="createKeys" Content="Create Keys" HorizontalAlignment="Left" Margin="784,218,0,0" VerticalAlignment="Top" Width="150" Click="createKeys_Click"/>
+        <Button x:Name="encrypt" Content="Encrypt" HorizontalAlignment="Left" Margin="784,255,0,0" VerticalAlignment="Top" Width="150" Click="encrypt_Click"/>
+        <Button x:Name="decrypt" Content="Decrypt" HorizontalAlignment="Left" Margin="784,292,0,0" VerticalAlignment="Top" Width="150" Click="decrypt_Click"/>
+        <TextBox x:Name="cipher"  HorizontalAlignment="Center" TextWrapping="Wrap" PlaceholderText="Cipher Text" VerticalAlignment="Top" Height="143" Margin="501,366,501,0" Width="278" TextChanged="cipher_TextChanged" IsReadOnly="True" />
+        <Button x:Name="back" Content="Back" HorizontalAlignment="Left" Margin="784,329,0,0" VerticalAlignment="Top" Width="150" Click="back_Click"/>
+        <Border x:Name="status_Bar" Margin="0,565,0,55" Height="100" >
+            <TextBlock x:Name="status_Text" Text="Testing RSA 2048 Asymmetric Encryption"
+                Margin="4" TextAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+        </Border>
+
+    </Grid>
+</Page>

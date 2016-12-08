@@ -20,6 +20,7 @@
              Margin="4" TextAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
         </Border>
         <TextBlock x:Name="label" HorizontalAlignment="Center"  TextWrapping="Wrap" Text="Chronos Chat" VerticalAlignment="Top" FontWeight="Light" FontSize="50" Width="295" Margin="493,236,492,0" />
+        <AppBarToggleButton x:Name="encryptionTest" HorizontalAlignment="Left" Icon="Accept" Label="Encryption Test" Margin="1212,0,0,0" VerticalAlignment="Top" Checked="EncryptionTest_Checked"/>
     </Grid>
 
 </Page>

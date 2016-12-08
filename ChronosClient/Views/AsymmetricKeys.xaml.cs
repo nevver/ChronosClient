@@ -194,6 +194,9 @@ namespace ChronosClient.Views
             // Export the public key to a buffer for use by others.
             buffPublicKey = keyPair.ExportPublicKey();
 
+            //public key to internal buffer
+            DataContainer.senderPublicKey = buffPublicKey;
+
             // You should keep your private key (embedded in the key pair) secure. For  
             // the purposes of this example, however, we're just copying it into a
             // static class variable for later use during decryption.

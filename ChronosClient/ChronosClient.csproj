@@ -102,6 +102,9 @@
     <Compile Include="Views\AsymmetricKeys.xaml.cs">
       <DependentUpon>AsymmetricKeys.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\EncryptionTest.xaml.cs">
+      <DependentUpon>EncryptionTest.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ImportRecipientsPublicKey.xaml.cs">
       <DependentUpon>ImportRecipientsPublicKey.xaml</DependentUpon>
     </Compile>
@@ -141,6 +144,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\AsymmetricKeys.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\EncryptionTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
