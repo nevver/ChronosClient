@@ -20,6 +20,7 @@ namespace ChronosClient
         internal static IBuffer senderPublicKey;
         internal static IBuffer recipientPublicKey;
         internal static IBuffer buffPlainText;
+        
     }
 
     /// <summary>

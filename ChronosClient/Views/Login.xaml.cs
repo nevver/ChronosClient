@@ -81,6 +81,7 @@ namespace ChronosClient.Views
                     }
                     else if (keyCheck == true)
                     {
+
                         Frame.Navigate(typeof(ListUsers));
                     }
 
@@ -89,11 +90,13 @@ namespace ChronosClient.Views
                 {
                     update_StatusBar("red"); 
                     update_StatusText("Login failed. Try again.");
+                    Debug.WriteLine(hre.ToString());
                 }
                 catch (Exception ex)
                 {
                     update_StatusBar("red");
-                    update_StatusText("Login failed. Try again.");
+                    update_StatusText("Login failed. Contact administrator.");
+                    Debug.WriteLine(ex.ToString());
                 }
                
             }

@@ -56,6 +56,7 @@ namespace ChronosClient.Views
             Windows.Storage.StorageFile file = await filePicker.PickSingleFileAsync();
             if (file != null)
             {
+
                 // Application now has read/write access to all contents in the picked folder
                 // (including other sub-folder contents)
                 Windows.Storage.AccessCache.StorageApplicationPermissions.
@@ -71,13 +72,21 @@ namespace ChronosClient.Views
                 Windows.Storage.StorageFolder localFolder =
                    Windows.Storage.ApplicationData.Current.LocalFolder;
                 Windows.Storage.StorageFile recipientPublicKey =
-                    await localFolder.CreateFileAsync((DataContainer.User + ".PublicKey"), Windows.Storage.CreationCollisionOption.OpenIfExists);
+                    await localFolder.CreateFileAsync((DataContainer.Recipient + ".PublicKey"), Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
+                continueButton.Visibility = Visibility.Visible;
+                continueButton.IsEnabled = true;
+            }
+            else
+            {
+                dirSelectorButton.IsEnabled = true;
+                dirSelectorButton.Visibility = Visibility.Visible;
+                continueButton.Visibility = Visibility.Collapsed;
+                continueButton.IsEnabled = false;
             }
 
-            continueButton.Visibility = Visibility.Visible;
-            continueButton.IsEnabled = true;
-
+            
+            
         }
 
         private void Logout_Checked(object sender, RoutedEventArgs e)

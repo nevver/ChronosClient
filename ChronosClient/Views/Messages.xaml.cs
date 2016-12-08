@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
+using Windows.ApplicationModel.Core;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using Windows.Storage.Streams;
@@ -21,7 +22,12 @@ namespace ChronosClient.Views
     {
         private static string message;
         private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
-        private static UInt32 asymmetricKeyLength = 2048;
+        private string recipientEncrypted;
+        private string senderEncrypted;
+        private IBuffer encryptedMessage;
+        private IBuffer decryptedMessage;
+        private string encData;
+
         //private object buffPublicKey;
 
         public IBuffer decode64BaseString(string str)
@@ -105,7 +111,10 @@ namespace ChronosClient.Views
                                     body.Width = 535;
                                     body.Foreground = new SolidColorBrush(Colors.DodgerBlue);
                                     body.TextAlignment = Windows.UI.Xaml.TextAlignment.Right;
-                                    body.Text = data.messages[i].body;
+                                    encData = data.messages[i].body2;
+                                    IBuffer userData = CryptographicBuffer.DecodeFromBase64String(encData);
+                                    asymmetricDecryptMessageBody(strAsymmetricAlgName, userData);
+                                    body.Text = message;
                                     listView_Messages.Items.Add(body);
                                     listView_Messages.Items.Add(space);
 
@@ -129,7 +138,10 @@ namespace ChronosClient.Views
                                     body.Width = 535;
                                     body.Foreground = new SolidColorBrush(Colors.DodgerBlue);
                                     body.TextAlignment = Windows.UI.Xaml.TextAlignment.Left;
-                                    body.Text = data.messages[i].body;
+                                    encData = data.messages[i].body;
+                                    IBuffer userData = CryptographicBuffer.DecodeFromBase64String(encData);
+                                    asymmetricDecryptMessageBody(strAsymmetricAlgName, userData);
+                                    body.Text = message;
                                     listView_Messages.Items.Add(body);
                                     listView_Messages.Items.Add(space);
                                 }
@@ -173,6 +185,7 @@ namespace ChronosClient.Views
             public string user_email { get; set; }
             public int conversation_id { get; set; }
             public string body { get; set; }
+            public string body2 { get; set; }
             public string created_at { get; set; }
         }
 
@@ -190,39 +203,69 @@ namespace ChronosClient.Views
         }
 
         // method to encrypt plain text
-        public void asymemtricEncryptMessageBody(
-            String strAsymmetricAlgName,
-            IBuffer buffMessageToEncrypt,
-            IBuffer buffPublicKey,
-            out IBuffer buffEncryptedMessage)
+        public void asymemtricEncryptMessageBodyForSender(
+            String strAsymmetricAlgName)
         {
             // Open the algorithm provider for the specified asymmetric algorithm.
             AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
 
             // Import the public key from a buffer.
-            CryptographicKey publicKey = objAlgProv.ImportPublicKey(buffPublicKey);
+            CryptographicKey publicKey = objAlgProv.ImportPublicKey(DataContainer.senderPublicKey);
 
-            // Encrypt the session key by using the public key.
-            buffEncryptedMessage = CryptographicEngine.Encrypt(publicKey, buffMessageToEncrypt, null);
+            IBuffer plain = CryptographicBuffer.ConvertStringToBinary(message, BinaryStringEncoding.Utf8);
+
+            // Encrypt message by using the public key.
+            encryptedMessage = CryptographicEngine.Encrypt(publicKey, plain, null);
+
+            //convert to cipher string
+             senderEncrypted = CryptographicBuffer.EncodeToBase64String(encryptedMessage);
+
+        }
+
+        // method to encrypt plain text
+        public void asymemtricEncryptMessageBodyRecipient(
+            String strAsymmetricAlgName)
+        {
+            // Open the algorithm provider for the specified asymmetric algorithm.
+            AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
+
+            // Import the public key from a buffer.
+            CryptographicKey publicKey = objAlgProv.ImportPublicKey(DataContainer.recipientPublicKey);
+
+            IBuffer plain = CryptographicBuffer.ConvertStringToBinary(message, BinaryStringEncoding.Utf8);
+
+            // Encrypt message by using the public key.
+            encryptedMessage = CryptographicEngine.Encrypt(publicKey, plain, null);
+
+            //convert to cipher string
+            recipientEncrypted = CryptographicBuffer.EncodeToBase64String(encryptedMessage);
 
         }
 
         // method to decrypt ciphertext
         public void asymmetricDecryptMessageBody(
     String strAsymmetricAlgName,
-    String strSymmetricAlgName,
     IBuffer buffEncryptedMessageBody)
         {
             // Open the algorithm provider for the specified asymmetric algorithm.
             AsymmetricKeyAlgorithmProvider objAsymmAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
 
-            // Import the public key from a buffer. You should keep your private key
-            // secure. For the purposes of this example, however, the private key is
-            // just stored in a static class variable.
-            CryptographicKey keyPair = objAsymmAlgProv.ImportKeyPair(DataContainer.senderKeyPair);
+            CryptographicKey pair = objAsymmAlgProv.ImportKeyPair(DataContainer.senderKeyPair);
+            try
+            {
+                // Use the private key embedded in the key pair to decrypt the session key.
+                decryptedMessage = CryptographicEngine.Decrypt(pair, buffEncryptedMessageBody, null);
+            }
+            catch (System.ArgumentException ar)
+            {
+                Debug.WriteLine(ar.ToString());
+                CoreApplication.Exit();
+            }
+            
 
-            // Use the private key embedded in the key pair to decrypt the session key.
-            DataContainer.buffPlainText = CryptographicEngine.Decrypt(keyPair, buffEncryptedMessageBody, null);
+            //convert to string
+            message = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, decryptedMessage);
+
         }
 
         private async void sendMessage_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
@@ -232,6 +275,8 @@ namespace ChronosClient.Views
             if (message != null)
             {
                 sendMessageAsync.IsEnabled = false;
+                asymemtricEncryptMessageBodyForSender(strAsymmetricAlgName);
+                asymemtricEncryptMessageBodyRecipient(strAsymmetricAlgName);
                 try
                 {
                     string accessToken = DataContainer.Token;
@@ -239,7 +284,8 @@ namespace ChronosClient.Views
                     {
 
                         conversation_id = DataContainer.ConversationID,
-                        body = message
+                        body = recipientEncrypted,
+                        body2 = senderEncrypted
 
                     });
 

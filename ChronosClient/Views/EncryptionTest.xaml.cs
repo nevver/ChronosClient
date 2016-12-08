@@ -28,6 +28,8 @@ namespace ChronosClient.Views
         public EncryptionTest()
         {
             this.InitializeComponent();
+            encrypt.IsEnabled = false;
+            decrypt.IsEnabled = false;
         }
 
         private void plain_TextChanged(object sender, TextChangedEventArgs e)
@@ -42,22 +44,28 @@ namespace ChronosClient.Views
 
         private void createKeys_Click(object sender, RoutedEventArgs e)
         {
+
             if (keyPair == null)
             {
                 createAsymmetricKeyPair(strAsymmetricAlgName, asymmetricKeyLength, out pubKey);
                 update_StatusBar("blue");
                 status_Text.Text = "Asymmetric keys created.";
+                encrypt.IsEnabled = true;
+
             }
             else
             {
                 update_StatusBar("green");
                 status_Text.Text = "Asymmetric keys already exist.";
             }
+
+            
             
         }
 
         private void encrypt_Click(object sender, RoutedEventArgs e)
         {
+            encrypt.IsEnabled = false;
             if (keyPair == null)
             {
                 update_StatusBar("red");
@@ -72,12 +80,14 @@ namespace ChronosClient.Views
             asymemtricEncryptMessageBody(strAsymmetricAlgName, plaintext);
             cipher.Text = plaintext;
             plain.Text = plaintext;
-
+            decrypt.IsEnabled = true;
 
         }
 
         private void decrypt_Click(object sender, RoutedEventArgs e)
         {
+            decrypt.IsEnabled = false;
+            
             if (plaintext == null)
             {
                 update_StatusBar("red");
@@ -86,7 +96,7 @@ namespace ChronosClient.Views
             asymmetricDecryptMessageBody(strAsymmetricAlgName, encryptedMessage);
             plain.Text = plaintext;
             cipher.Text = plaintext;
-
+            encrypt.IsEnabled = true;
 
         }
 
