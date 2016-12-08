@@ -16,7 +16,6 @@ namespace ChronosClient.Views
     public sealed partial class EncryptionTest : Page
     {
         private string plaintext;
-        private string ciphertext;
         private string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
         private UInt32 asymmetricKeyLength = 2048;
         private IBuffer pubKey;
@@ -38,7 +37,7 @@ namespace ChronosClient.Views
 
         private void cipher_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ciphertext = cipher.Text;
+            plaintext = cipher.Text;
         }
 
         private void createKeys_Click(object sender, RoutedEventArgs e)
@@ -71,21 +70,22 @@ namespace ChronosClient.Views
             }
 
             asymemtricEncryptMessageBody(strAsymmetricAlgName, plaintext);
-            cipher.Text = ciphertext;
-            plain.Text = ciphertext;
+            cipher.Text = plaintext;
+            plain.Text = plaintext;
 
 
         }
 
         private void decrypt_Click(object sender, RoutedEventArgs e)
         {
-            if (ciphertext == null)
+            if (plaintext == null)
             {
                 update_StatusBar("red");
                 status_Text.Text = "No cipher text to decrypt.";
             }
             asymmetricDecryptMessageBody(strAsymmetricAlgName, encryptedMessage);
             plain.Text = plaintext;
+            cipher.Text = plaintext;
 
 
         }
@@ -133,7 +133,7 @@ namespace ChronosClient.Views
             encryptedMessage = CryptographicEngine.Encrypt(publicKey, plain, null);
 
             //convert to plaintext
-            ciphertext = CryptographicBuffer.EncodeToBase64String(encryptedMessage);
+            plaintext = CryptographicBuffer.EncodeToBase64String(encryptedMessage);
 
         }
 
