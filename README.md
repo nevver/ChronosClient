@@ -2,10 +2,12 @@
 **Chronos Client  ![icon](https://github.com/nevver/ChronosClient/blob/master/ChronosClient/Assets/Square44x44Logo.targetsize-24_altform-unplated.png?raw=true)**
 ====
 
- A Universal Windows Platform application.<br>
+ A E2EE Universal Windows Platform chat application.<br>
  The API can be found https://github.com/nevver/chronosapi. <br>
  Currently hosted at https://chronoschat.co. <br />
  The server is currently graded A+ on <a href="https://www.ssllabs.com/ssltest/analyze.html?d=chronoschat.co">Qualys SSL Labs</a>. <br>
+ Encryption algorithm for messages and authentication is AES_GCM referenced <a href="https://msdn.microsoft.com/en-us/library/windows.security.cryptography.core.encryptedandauthenticateddata.aspx">here </a> with a key size of 64 bytes. <br>
+  Public encryption algorithm and hashing is RsaOaepSha512 referenced <a href="https://msdn.microsoft.com/en-us/library/windows.security.cryptography.core.asymmetricalgorithmnames.rsaoaepsha512.aspx">here </a> with a key size of 2048 bits. <br>
 
 
 
