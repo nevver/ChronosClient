@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
-using Windows.ApplicationModel.Core;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.Core;
 using Windows.Storage.Streams;
@@ -23,11 +22,71 @@ namespace ChronosClient.Views
     {
         private static string message;
         private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaOaepSha512;
-        private string recipientEncrypted;
-        private string senderEncrypted;
-        private IBuffer encryptedMessage;
-        private IBuffer decryptedMessage;
         private string encData;
+
+        // Initialize the symmetric encryption
+        private static String strSymAlgName = SymmetricAlgorithmNames.AesGcm;
+        private static UInt32 keyLength = 64;  // Length of the key, in bytes
+
+        // encoding for symmetric message encryption
+        private BinaryStringEncoding encoding = BinaryStringEncoding.Utf8;
+        // buffer for newly generated AES key
+        private IBuffer keyMaterialSender;
+        // string from newly generated AES key buffer
+        private string keyMaterialStringSender;
+        // key from newly generated AES key
+        private CryptographicKey keySender;
+        // buffer for newly generated nonce (IV)
+        private IBuffer buffNonceSender;
+        // encrypted message data with AES key
+        private IBuffer encryptedMessageDataSender;
+        // authentication tag for AES encrypted data
+        private IBuffer authenticationTagSender;
+        // string equivalent of the buffer containing the encrypted data
+        private string encryptedMessageDataStringSender;
+        // string equivalent of the buffer containing the tag for AES encrypted data
+        private string authenticationTagStringSender;
+        // string equivalent of the buffer containing the nonce
+        private string nonceStringSender;
+        // buffer with encrypted AES key 
+        private IBuffer encryptedAESKeyBuffSender;
+        // string equivalent of encrypted key
+        private string encryptedKeyStringSender;
+
+        // buffer for newly generated AES key
+        private IBuffer keyMaterialRecipient;
+        // string from newly generated AES key buffer
+        private string keyMaterialStringRecipient;
+        // key from newly generated AES key
+        private CryptographicKey keyRecipient;
+        // buffer for newly generated nonce (IV)
+        private IBuffer buffNonceRecipient;
+        // encrypted message data with AES key
+        private IBuffer encryptedMessageDataRecipient;
+        // authentication tag for AES encrypted data
+        private IBuffer authenticationTagRecipient;
+        // string equivalent of the buffer containing the encrypted data
+        private string encryptedMessageDataStringRecipient;
+        // string equivalent of the buffer containing the tag for AES encrypted data
+        private string authenticationTagStringRecipient;
+        // string equivalent of the buffer containing the nonce
+        private string nonceStringRecipient;
+        // buffer for encrypted AES key for recipient 
+        private IBuffer encryptedAESKeyBuffRecipient;
+        // string equivalent for encrypted key
+        private string encryptedKeyStringRecipient;
+
+        // decrypted data contents
+        private IBuffer buffDecrypted;
+        // string representation of decrypted data contents
+        private string strDecrypted;
+
+        // Initialize a static nonce value.
+        static byte[] NonceBytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+
+
+
 
         //private object buffPublicKey;
 
@@ -61,10 +120,7 @@ namespace ChronosClient.Views
 
         }
 
-
-
-
-
+        // fetches encrypted messages from the server
         async void GetMessages(string url)
         {
             Debug.WriteLine(url);
@@ -92,7 +148,7 @@ namespace ChronosClient.Views
                         {
                             for (int i = 0; i < data.messages.Count; i++)
                             {
-
+                                //if a message was sent from the current user
                                 if (data.messages[i].user_email == DataContainer.User)
                                 {
 
@@ -113,13 +169,18 @@ namespace ChronosClient.Views
                                     body.Foreground = new SolidColorBrush(Colors.DodgerBlue);
                                     body.TextAlignment = Windows.UI.Xaml.TextAlignment.Right;
                                     encData = data.messages[i].body2;
-                                    IBuffer userData = CryptographicBuffer.DecodeFromBase64String(encData);
-                                    asymmetricDecryptMessageBody(strAsymmetricAlgName, userData);
-                                    body.Text = message;
+                                    nonceStringSender = data.messages[i].nc2;
+                                    encryptedKeyStringSender = data.messages[i].key2;
+                                    authenticationTagStringSender = data.messages[i].tag2;
+
+                                    //decrypt data if the user sent
+                                    AuthenticatedDecryptionSender(strSymAlgName, encryptedKeyStringSender, encData, nonceStringSender, authenticationTagStringSender);
+                                    body.Text = strDecrypted;
                                     listView_Messages.Items.Add(body);
                                     listView_Messages.Items.Add(space);
 
                                 }
+                                //if the message was sent to the current user
                                 else if (data.messages[i].user_email == DataContainer.Recipient)
                                 {
                                     TextBlock user = new TextBlock();
@@ -140,14 +201,16 @@ namespace ChronosClient.Views
                                     body.Foreground = new SolidColorBrush(Colors.DodgerBlue);
                                     body.TextAlignment = Windows.UI.Xaml.TextAlignment.Left;
                                     encData = data.messages[i].body;
-                                    IBuffer userData = CryptographicBuffer.DecodeFromBase64String(encData);
-                                    asymmetricDecryptMessageBody(strAsymmetricAlgName, userData);
-                                    body.Text = message;
+                                    nonceStringSender = data.messages[i].nc;
+                                    encryptedKeyStringSender = data.messages[i].key;
+                                    authenticationTagStringSender = data.messages[i].tag;
+
+                                    //decrypt the data sent to the user
+                                    AuthenticatedDecryptionSender(strSymAlgName, encryptedKeyStringSender, encData, nonceStringSender, authenticationTagStringSender);
+                                    body.Text = strDecrypted;
                                     listView_Messages.Items.Add(body);
                                     listView_Messages.Items.Add(space);
                                 }
-
-
 
                             }
                         }
@@ -186,7 +249,13 @@ namespace ChronosClient.Views
             public string user_email { get; set; }
             public int conversation_id { get; set; }
             public string body { get; set; }
+            public string nc { get; set; }
+            public string tag { get; set; }
+            public string key { get; set; }
             public string body2 { get; set; }
+            public string nc2 { get; set; }
+            public string tag2 { get; set; }
+            public string key2 { get; set; }
             public string created_at { get; set; }
         }
 
@@ -203,50 +272,80 @@ namespace ChronosClient.Views
             message = textToSend.Text;
         }
 
-        // method to encrypt plain text
-        public void asymemtricEncryptMessageBodyForSender(
-            String strAsymmetricAlgName)
+        // Encryption and authentication method for sender
+        private void AuthenticatedEncryptionSender(
+            String strMsg,
+            String strAlgName,
+            UInt32 keyLength)
         {
-            // Open the algorithm provider for the specified asymmetric algorithm.
-            AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
+            // Open a SymmetricKeyAlgorithmProvider object for the specified algorithm.
+            SymmetricKeyAlgorithmProvider objAlgProv = SymmetricKeyAlgorithmProvider.OpenAlgorithm(strAlgName);
 
-            // Import the public key from a buffer.
-            CryptographicKey publicKey = objAlgProv.ImportPublicKey(DataContainer.senderPublicKey);
+            // Create a buffer that contains the data to be encrypted.
+            IBuffer buffMsg = CryptographicBuffer.ConvertStringToBinary(strMsg, encoding);
 
-            IBuffer plain = CryptographicBuffer.ConvertStringToBinary(message, BinaryStringEncoding.Utf8);
+            // Generate a symmetric key.
+            keyMaterialSender = CryptographicBuffer.GenerateRandom(keyLength);
+            keyMaterialStringSender = CryptographicBuffer.EncodeToBase64String(keyMaterialSender);
+            keySender = objAlgProv.CreateSymmetricKey(keyMaterialSender);
 
-            // Encrypt message by using the public key.
-            encryptedMessage = CryptographicEngine.Encrypt(publicKey, plain, null);
+            // Generate a new nonce value.
+            buffNonceSender = GetNonce();
 
-            //convert to cipher string
-             senderEncrypted = CryptographicBuffer.EncodeToBase64String(encryptedMessage);
+            // Encrypt and authenticate the message.
+            EncryptedAndAuthenticatedData objEncrypted = CryptographicEngine.EncryptAndAuthenticate(
+                keySender,
+                buffMsg,
+                buffNonceSender,
+                null);
+
+            encryptedMessageDataSender = objEncrypted.EncryptedData;
+            authenticationTagSender = objEncrypted.AuthenticationTag;
+            encryptedMessageDataStringSender = CryptographicBuffer.EncodeToBase64String(encryptedMessageDataSender);
+            authenticationTagStringSender = CryptographicBuffer.EncodeToBase64String(authenticationTagSender);
+            nonceStringSender = CryptographicBuffer.EncodeToBase64String(buffNonceSender);
 
         }
 
-        // method to encrypt plain text
-        public void asymemtricEncryptMessageBodyRecipient(
-            String strAsymmetricAlgName)
+        // Encryption and authentication method for recipient
+        private void AuthenticatedEncryptionRecipient(
+            String strMsg,
+            String strAlgName,
+            UInt32 keyLength)
         {
-            // Open the algorithm provider for the specified asymmetric algorithm.
-            AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
+            // Open a SymmetricKeyAlgorithmProvider object for the specified algorithm.
+            SymmetricKeyAlgorithmProvider objAlgProv = SymmetricKeyAlgorithmProvider.OpenAlgorithm(strAlgName);
 
-            // Import the public key from a buffer.
-            CryptographicKey publicKey = objAlgProv.ImportPublicKey(DataContainer.recipientPublicKey);
+            // Create a buffer that contains the data to be encrypted.
+            IBuffer buffMsg = CryptographicBuffer.ConvertStringToBinary(strMsg, encoding);
 
-            IBuffer plain = CryptographicBuffer.ConvertStringToBinary(message, BinaryStringEncoding.Utf8);
+            // Generate a symmetric key.
+            keyMaterialRecipient = CryptographicBuffer.GenerateRandom(keyLength);
+            keyMaterialStringRecipient = CryptographicBuffer.EncodeToBase64String(keyMaterialRecipient);
+            keyRecipient = objAlgProv.CreateSymmetricKey(keyMaterialRecipient);
 
-            // Encrypt message by using the public key.
-            encryptedMessage = CryptographicEngine.Encrypt(publicKey, plain, null);
+            // Generate a new nonce value.
+            buffNonceRecipient = GetNonce();
 
-            //convert to cipher string
-            recipientEncrypted = CryptographicBuffer.EncodeToBase64String(encryptedMessage);
+            // Encrypt and authenticate the message.
+            EncryptedAndAuthenticatedData objEncrypted = CryptographicEngine.EncryptAndAuthenticate(
+                keyRecipient,
+                buffMsg,
+                buffNonceRecipient,
+                null);
+
+            encryptedMessageDataRecipient = objEncrypted.EncryptedData;
+            authenticationTagRecipient = objEncrypted.AuthenticationTag;
+            encryptedMessageDataStringRecipient = CryptographicBuffer.EncodeToBase64String(encryptedMessageDataRecipient);
+            authenticationTagStringRecipient = CryptographicBuffer.EncodeToBase64String(authenticationTagRecipient);
+            nonceStringRecipient = CryptographicBuffer.EncodeToBase64String(buffNonceRecipient);
 
         }
 
-        // method to decrypt ciphertext
-        public async void asymmetricDecryptMessageBody(
+        // method to decrypt ciphertext of AES key
+        public async void asymmetricDecryptAESKeySender(
     String strAsymmetricAlgName,
-    IBuffer buffEncryptedMessageBody)
+    IBuffer buffEncryptedAESKey)
         {
             // Open the algorithm provider for the specified asymmetric algorithm.
             AsymmetricKeyAlgorithmProvider objAsymmAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
@@ -255,7 +354,7 @@ namespace ChronosClient.Views
             try
             {
                 // Use the private key embedded in the key pair to decrypt the session key.
-                decryptedMessage = CryptographicEngine.Decrypt(pair, buffEncryptedMessageBody, null);
+                keyMaterialSender = CryptographicEngine.Decrypt(pair, buffEncryptedAESKey, null);
             }
             catch (System.ArgumentException ar)
             {
@@ -267,7 +366,106 @@ namespace ChronosClient.Views
 
 
             //convert to string
-            message = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, decryptedMessage);
+            keyMaterialStringSender = CryptographicBuffer.EncodeToBase64String(keyMaterialSender);
+
+        }
+
+       
+
+        public void AuthenticatedDecryptionSender(
+           String strAlgName, string key, string message, string nonce, string tag)
+        {
+
+            // Open a SymmetricKeyAlgorithmProvider object for the specified algorithm.
+            SymmetricKeyAlgorithmProvider objAlgProv = SymmetricKeyAlgorithmProvider.OpenAlgorithm(strAlgName);
+
+
+            IBuffer encryptedAESKey = CryptographicBuffer.DecodeFromBase64String(key);
+
+            asymmetricDecryptAESKeySender(strAsymmetricAlgName, encryptedAESKey);
+
+            IBuffer decryptedAESKeyBuff = CryptographicBuffer.DecodeFromBase64String(keyMaterialStringSender);
+            CryptographicKey keyFromEncryptedString = objAlgProv.CreateSymmetricKey(decryptedAESKeyBuff);
+
+            IBuffer encryptedDataFromStringBuff = CryptographicBuffer.DecodeFromBase64String(message);
+            IBuffer nonceFromString = CryptographicBuffer.DecodeFromBase64String(nonce);
+            IBuffer authenticationTagFromString = CryptographicBuffer.DecodeFromBase64String(tag);
+
+            // The input key must be securely shared between the sender of the encrypted message
+            // and the recipient. The nonce must also be shared but does not need to be shared
+            // in a secure manner. If the sender encodes the message string to a buffer, the
+            // binary encoding method must also be shared with the recipient.
+            // The recipient uses the DecryptAndAuthenticate() method as follows to decrypt the 
+            // message, authenticate it, and verify that it has not been altered in transit.
+            buffDecrypted = CryptographicEngine.DecryptAndAuthenticate(
+                keyFromEncryptedString,
+                encryptedDataFromStringBuff,
+                nonceFromString,
+                authenticationTagFromString,
+                null);
+
+ 
+            strDecrypted = CryptographicBuffer.ConvertBinaryToString(encoding, buffDecrypted);
+
+
+        }
+
+        IBuffer GetNonce()
+        {
+            // Security best practises require that an ecryption operation not
+            // be called more than once with the same nonce for the same key.
+            // A nonce value can be predictable, but must be unique for each
+            // secure session.
+
+            NonceBytes[0]++;
+            for (int i = 0; i < NonceBytes.Length - 1; i++)
+            {
+                if (NonceBytes[i] == 255)
+                {
+                    NonceBytes[i + 1]++;
+                }
+            }
+
+            return CryptographicBuffer.CreateFromByteArray(NonceBytes);
+        }
+
+        // method to encrypt AES key for sender
+        public void asymemtricEncryptAESKeyforSender(
+            String strAsymmetricAlgName)
+        {
+            // Open the algorithm provider for the specified asymmetric algorithm.
+            AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
+
+            // Import the public key from a buffer.
+            CryptographicKey publicKey = objAlgProv.ImportPublicKey(DataContainer.senderPublicKey);
+
+            IBuffer plainKey = CryptographicBuffer.DecodeFromBase64String(keyMaterialStringSender);
+
+            // Encrypt message by using the public key.
+            encryptedAESKeyBuffSender = CryptographicEngine.Encrypt(publicKey, plainKey, null);
+
+            //convert to cipher string
+            encryptedKeyStringSender = CryptographicBuffer.EncodeToBase64String(encryptedAESKeyBuffSender);
+
+        }
+
+        // method to encrypt AES key for recipient
+        public void asymemtricEncryptAESKeyforRecipient(
+            String strAsymmetricAlgName)
+        {
+            // Open the algorithm provider for the specified asymmetric algorithm.
+            AsymmetricKeyAlgorithmProvider objAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
+
+            // Import the public key from a buffer.
+            CryptographicKey publicKey = objAlgProv.ImportPublicKey(DataContainer.recipientPublicKey);
+
+            IBuffer plainKey = CryptographicBuffer.DecodeFromBase64String(keyMaterialStringRecipient);
+
+            // Encrypt message by using the public key.
+            encryptedAESKeyBuffRecipient = CryptographicEngine.Encrypt(publicKey, plainKey, null);
+
+            //convert to cipher string
+            encryptedKeyStringRecipient = CryptographicBuffer.EncodeToBase64String(encryptedAESKeyBuffRecipient);
 
         }
 
@@ -278,8 +476,24 @@ namespace ChronosClient.Views
             if (message != null)
             {
                 sendMessageAsync.IsEnabled = false;
-                asymemtricEncryptMessageBodyForSender(strAsymmetricAlgName);
-                asymemtricEncryptMessageBodyRecipient(strAsymmetricAlgName);
+
+                // AES encrypt message for current user to decrypt 
+                AuthenticatedEncryptionSender(
+                message,
+                strSymAlgName,
+                keyLength);
+
+                // Encrypting AES key with rsa public key of sender
+                asymemtricEncryptAESKeyforSender(strAsymmetricAlgName);
+
+                // AES encrypt message for recipient to decrypt 
+                AuthenticatedEncryptionRecipient(
+                message,
+                strSymAlgName,
+                keyLength);
+
+                // Encrypting AES key with rsa public key of recipient
+                asymemtricEncryptAESKeyforRecipient(strAsymmetricAlgName);
                 try
                 {
                     string accessToken = DataContainer.Token;
@@ -287,8 +501,14 @@ namespace ChronosClient.Views
                     {
 
                         conversation_id = DataContainer.ConversationID,
-                        body = recipientEncrypted,
-                        body2 = senderEncrypted
+                        body = encryptedMessageDataStringRecipient,
+                        body2 = encryptedMessageDataStringSender,
+                        nc = nonceStringRecipient, 
+                        nc2 = nonceStringSender, 
+                        tag = authenticationTagStringRecipient, 
+                        tag2 = authenticationTagStringSender, 
+                        key = encryptedKeyStringRecipient, 
+                        key2 = encryptedKeyStringSender
 
                     });
 
@@ -347,12 +567,6 @@ namespace ChronosClient.Views
                     await folder.CreateFileAsync(DataContainer.User + ".PublicKey",
                         Windows.Storage.CreationCollisionOption.ReplaceExisting);
 
-                // generate asymmetric keys
-                // IBuffer buffPublicKey;
-                //this.createAsymmetricKeyPair(
-                //    strAsymmetricAlgName,
-                //    asymmetricKeyLength,
-                //    out DataContainer.buffPublicKey);
 
                 // encode buffer into a ASCII string 
                 string publicKeyEncded = encodeBuffTo64BaseString(DataContainer.senderPublicKey);
@@ -360,21 +574,6 @@ namespace ChronosClient.Views
 
                 // write to the folder selected by user
                 await Windows.Storage.FileIO.WriteTextAsync(pubKeyFile, publicKeyEncded);
-
-                //// create keypair file for application use only for the user that is logged in
-                //string keyPairName = DataContainer.User + ".KeyPair";
-                //DataContainer.KeyPairFileName = keyPairName;
-                //Windows.Storage.StorageFolder localFolder =
-                //    Windows.Storage.ApplicationData.Current.LocalFolder;
-                //Windows.Storage.StorageFile keyPair =
-                //    await localFolder.CreateFileAsync((DataContainer.KeyPairFileName),
-                //        Windows.Storage.CreationCollisionOption.ReplaceExisting);
-
-                //// encode buffer into a ASCII string 
-                //string keyPairEncod = encodeBuffTo64BaseString(DataContainer.buffKeyPair);
-
-                //// write to the file the app uses
-                //await Windows.Storage.FileIO.WriteTextAsync(keyPair, keyPairEncod);
 
             }
 
