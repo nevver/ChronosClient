@@ -9,16 +9,20 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <TextBlock x:Name="label" HorizontalAlignment="Center"  TextWrapping="Wrap" Text="Chronos Chat" VerticalAlignment="Top" FontWeight="Light" FontSize="50" Width="295" Margin="493,94,492,0" />
-        <TextBox x:Name="plain" HorizontalAlignment="Center" TextWrapping="Wrap" PlaceholderText="Plain Text" VerticalAlignment="Top" Height="143" Margin="501,218,501,0" Width="278" TextChanged="plain_TextChanged" />
-        <Button x:Name="createKeys" Content="Create Keys" HorizontalAlignment="Left" Margin="784,218,0,0" VerticalAlignment="Top" Width="150" Click="createKeys_Click"/>
-        <Button x:Name="encrypt" Content="Encrypt" HorizontalAlignment="Left" Margin="784,255,0,0" VerticalAlignment="Top" Width="150" Click="encrypt_Click"/>
-        <Button x:Name="decrypt" Content="Decrypt" HorizontalAlignment="Left" Margin="784,292,0,0" VerticalAlignment="Top" Width="150" Click="decrypt_Click"/>
-        <TextBox x:Name="cipher"  HorizontalAlignment="Center" TextWrapping="Wrap" PlaceholderText="Cipher Text" VerticalAlignment="Top" Height="143" Margin="501,366,501,0" Width="278" TextChanged="cipher_TextChanged" IsReadOnly="True" />
-        <Button x:Name="back" Content="Back" HorizontalAlignment="Left" Margin="784,329,0,0" VerticalAlignment="Top" Width="150" Click="back_Click"/>
+        <TextBox x:Name="plain" HorizontalAlignment="Center" TextWrapping="Wrap" PlaceholderText="Plain Text" VerticalAlignment="Top" Height="143" Margin="787,210,215,0" Width="278" TextChanged="plain_TextChanged" />
+        <Button x:Name="createKeys" Content="Create Keys" HorizontalAlignment="Left" Margin="1070,210,0,0" VerticalAlignment="Top" Width="150" Click="createKeys_Click"/>
+        <Button x:Name="encrypt" Content="Encrypt" HorizontalAlignment="Left" Margin="1070,247,0,0" VerticalAlignment="Top" Width="150" Click="encrypt_Click"/>
+        <Button x:Name="decrypt" Content="Decrypt" HorizontalAlignment="Left" Margin="1070,284,0,0" VerticalAlignment="Top" Width="150" Click="decrypt_Click"/>
+        <TextBox x:Name="cipher"  HorizontalAlignment="Center" TextWrapping="Wrap" PlaceholderText="Cipher Text" VerticalAlignment="Top" Height="143" Margin="787,358,215,0" Width="278" TextChanged="cipher_TextChanged" IsReadOnly="True" />
+        <Button x:Name="back" Content="Back" HorizontalAlignment="Left" Margin="1070,321,0,0" VerticalAlignment="Top" Width="150" Click="back_Click"/>
         <Border x:Name="status_Bar" Margin="0,565,0,55" Height="100" >
-            <TextBlock x:Name="status_Text" Text="Testing RSA 2048 Asymmetric Encryption"
+            <TextBlock x:Name="status_Text" Text="Testing RSA OAEP 2048 with SHA512 + AES GCM 256 Encryption"
                 Margin="4" TextAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
         </Border>
+        <TextBox x:Name="aesKey" HorizontalAlignment="Center" TextWrapping="Wrap" PlaceholderText="Encrypted AES Key" VerticalAlignment="Top" Height="143" Margin="504,210,498,0" Width="278" TextChanged="aes_TextChanged" IsReadOnly="True" />
+        <TextBox x:Name="tag"  HorizontalAlignment="Center" TextWrapping="Wrap" PlaceholderText="Message Authentication Tag" VerticalAlignment="Top" Height="143" Margin="504,358,498,0" Width="278" TextChanged="tag_TextChanged" IsReadOnly="True" />
+        <TextBox x:Name="nonce" HorizontalAlignment="Center" TextWrapping="Wrap" PlaceholderText="Nonce Value (IV)" VerticalAlignment="Top" Height="143" Margin="221,210,781,0" Width="278" TextChanged="nonce_TextChanged" IsReadOnly="True" />
+      
 
     </Grid>
 </Page>

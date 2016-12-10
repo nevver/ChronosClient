@@ -189,15 +189,23 @@ namespace ChronosClient.Views
                     Debug.WriteLine(reg_Response.ToString());
 
                 }
+                catch (FlurlHttpException ex)
+                {
+                    update_StatusBar("red");
+                    update_StatusText("Registration failed. Try again.");
+                    Debug.WriteLine(ex.ToString());
+                }
                 catch (HttpRequestException hre)
                 {
                     update_StatusBar("red");
                     update_StatusText("Registration failed. Try again.");
+                    Debug.WriteLine(hre.ToString());
                 }
                 catch (Exception ex)
                 {
                     update_StatusBar("red");
                     update_StatusText("Registration failed. Try again.");
+                    Debug.WriteLine(ex.ToString());
                 }
 
 

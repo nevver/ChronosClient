@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -25,6 +26,8 @@ namespace ChronosClient
         public MainPage()
         {
             this.InitializeComponent();
+            ApplicationView.PreferredLaunchViewSize = new Size(1280, 900);
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
             Loaded += MainPage_Loaded;
         }
         private void MainPage_Loaded(object sender, RoutedEventArgs e)

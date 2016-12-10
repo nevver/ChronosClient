@@ -20,8 +20,8 @@ namespace ChronosClient.Views
         private UInt32 asymmetricKeyLength = 2048;
         private IBuffer pubKey;
         private IBuffer keys;
-        private IBuffer encryptedMessage;
-        private IBuffer decryptedMessage;
+
+        private IBuffer decryptedAESKeyBuff;
         // Initialize a static nonce value.
         static byte[] NonceBytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -30,12 +30,23 @@ namespace ChronosClient.Views
 
         // Initialize the symmetric encryption
         private static String strSymAlgName = SymmetricAlgorithmNames.AesGcm;
-        private static UInt32 keyLength = 256;  // Length of the key, in bytes
-        BinaryStringEncoding encoding;          // Binary encoding
+        private static UInt32 keyLength = 64;  // Length of the key, in bytes
+        BinaryStringEncoding encoding  = BinaryStringEncoding.Utf8;          // Binary encoding
         IBuffer buffNonce;                      // Nonce
 
         // AES key
         CryptographicKey key;                   // Symmetric key
+        private IBuffer encryptedMessageData;
+        private IBuffer authenticationTag;
+        private IBuffer keyMaterial;
+        private IBuffer encryptedAESKeyBuff;
+        private IBuffer buffDecrypted;
+        private string keyMaterialString;
+        private string encryptedMessageDataString;
+        private string authenticationTagString;
+        private string encryptedKeyString;
+        private string nonceString;
+        private string decryptedAesKeyString;
 
         public EncryptionTest()
         {
@@ -90,13 +101,12 @@ namespace ChronosClient.Views
                 status_Text.Text = "No plain text to encrypt.";
             }
 
-            //// Encrypt and authenticate the message.
-            //EncryptedAndAuthenticatedData objEncrypted = this.AuthenticatedEncryption(
-            //    plaintext,
-            //    strSymAlgName,
-            //    keyLength,
-            //    out buffNonce);
-            asymemtricEncryptMessageBody(strAsymmetricAlgName, plaintext);
+            // Encrypt and authenticate the message.
+            AuthenticatedEncryption(
+                plaintext,
+                strSymAlgName,
+                keyLength);
+            asymemtricEncryptAESKey(strAsymmetricAlgName, keyMaterialString);
             cipher.Text = plaintext;
             plain.Text = plaintext;
             decrypt.IsEnabled = true;
@@ -104,11 +114,10 @@ namespace ChronosClient.Views
         }
 
         // Encryption and authentication method
-        public EncryptedAndAuthenticatedData AuthenticatedEncryption(
+        private void AuthenticatedEncryption(
             String strMsg,
             String strAlgName,
-            UInt32 keyLength,
-            out IBuffer buffNonce)
+            UInt32 keyLength)
         {
             // Open a SymmetricKeyAlgorithmProvider object for the specified algorithm.
             SymmetricKeyAlgorithmProvider objAlgProv = SymmetricKeyAlgorithmProvider.OpenAlgorithm(strAlgName);
@@ -118,7 +127,8 @@ namespace ChronosClient.Views
             IBuffer buffMsg = CryptographicBuffer.ConvertStringToBinary(strMsg, encoding);
 
             // Generate a symmetric key.
-            IBuffer keyMaterial = CryptographicBuffer.GenerateRandom(keyLength);
+            keyMaterial = CryptographicBuffer.GenerateRandom(keyLength);
+            keyMaterialString = CryptographicBuffer.EncodeToBase64String(keyMaterial);
             key = objAlgProv.CreateSymmetricKey(keyMaterial);
 
             // Generate a new nonce value.
@@ -131,7 +141,59 @@ namespace ChronosClient.Views
                 buffNonce,
                 null);
 
-            return objEncrypted;
+            encryptedMessageData = objEncrypted.EncryptedData;
+            authenticationTag = objEncrypted.AuthenticationTag;
+            encryptedMessageDataString = CryptographicBuffer.EncodeToBase64String(encryptedMessageData);
+            authenticationTagString = CryptographicBuffer.EncodeToBase64String(authenticationTag);
+            nonceString = CryptographicBuffer.EncodeToBase64String(buffNonce);
+            plaintext = encryptedMessageDataString;
+            tag.Text = authenticationTagString;
+            nonce.Text = nonceString;
+            
+        }
+
+        public void AuthenticatedDecryption(
+            String strAlgName,
+            String buffNonce)
+        {
+
+            // Open a SymmetricKeyAlgorithmProvider object for the specified algorithm.
+            SymmetricKeyAlgorithmProvider objAlgProv = SymmetricKeyAlgorithmProvider.OpenAlgorithm(strAlgName);
+
+            
+            IBuffer encryptedAESKey = CryptographicBuffer.DecodeFromBase64String(encryptedKeyString);
+
+            asymmetricDecryptAESKey(strAsymmetricAlgName, encryptedAESKeyBuff);
+
+            IBuffer decryptedAESKeyBuff = CryptographicBuffer.DecodeFromBase64String(decryptedAesKeyString);
+            CryptographicKey keyFromEncryptedString = objAlgProv.CreateSymmetricKey(decryptedAESKeyBuff);
+
+            IBuffer encryptedDataFromStringBuff = CryptographicBuffer.DecodeFromBase64String(plaintext);
+            IBuffer nonceFromString = CryptographicBuffer.DecodeFromBase64String(nonceString);
+            IBuffer authenticationTagFromString = CryptographicBuffer.DecodeFromBase64String(authenticationTagString);
+
+            // The input key must be securely shared between the sender of the encrypted message
+            // and the recipient. The nonce must also be shared but does not need to be shared
+            // in a secure manner. If the sender encodes the message string to a buffer, the
+            // binary encoding method must also be shared with the recipient.
+            // The recipient uses the DecryptAndAuthenticate() method as follows to decrypt the 
+            // message, authenticate it, and verify that it has not been altered in transit.
+            buffDecrypted = CryptographicEngine.DecryptAndAuthenticate(
+                keyFromEncryptedString,
+                encryptedDataFromStringBuff,
+                nonceFromString,
+                authenticationTagFromString,
+                null);
+
+            // Convert the decrypted buffer to a string (for display). If the sender created the
+            // original message buffer from a string, the sender must tell the recipient what 
+            // BinaryStringEncoding value was used. Here, BinaryStringEncoding.Utf8 is used to
+            // convert the message to a buffer before encryption and to convert the decrypted
+            // buffer back to the original plaintext.
+            String strDecrypted = CryptographicBuffer.ConvertBinaryToString(encoding, buffDecrypted);
+            plaintext = strDecrypted;
+            plain.Text = plaintext;
+            cipher.Text = plaintext;
 
         }
 
@@ -163,7 +225,10 @@ namespace ChronosClient.Views
                 update_StatusBar("red");
                 status_Text.Text = "No cipher text to decrypt.";
             }
-            asymmetricDecryptMessageBody(strAsymmetricAlgName, encryptedMessage);
+
+            AuthenticatedDecryption(
+            strSymAlgName,
+            nonceString);
             plain.Text = plaintext;
             cipher.Text = plaintext;
             encrypt.IsEnabled = true;
@@ -197,7 +262,7 @@ namespace ChronosClient.Views
         }
 
         // method to encrypt plain text
-        public void asymemtricEncryptMessageBody(
+        public void asymemtricEncryptAESKey(
             String strAsymmetricAlgName,
             String text)
         {
@@ -207,29 +272,31 @@ namespace ChronosClient.Views
             // Import the public key from a buffer.
             CryptographicKey publicKey = objAlgProv.ImportPublicKey(pubKey);
 
-            IBuffer plain = CryptographicBuffer.ConvertStringToBinary(text, BinaryStringEncoding.Utf8);
+            IBuffer keyMaterial = CryptographicBuffer.DecodeFromBase64String(text);
 
-            // Encrypt message by using the public key.
-            encryptedMessage = CryptographicEngine.Encrypt(publicKey, plain, null);
+            // Encrypt aes key by using the public key.
+            encryptedAESKeyBuff = CryptographicEngine.Encrypt(publicKey, keyMaterial, null);
 
             //convert to plaintext
-            plaintext = CryptographicBuffer.EncodeToBase64String(encryptedMessage);
+            encryptedKeyString = CryptographicBuffer.EncodeToBase64String(encryptedAESKeyBuff);
+
+            aesKey.Text = encryptedKeyString;
 
         }
 
         // method to decrypt ciphertext
-        public void asymmetricDecryptMessageBody(
+        public void asymmetricDecryptAESKey(
     String strAsymmetricAlgName,
-    IBuffer buffEncryptedMessageBody)
+    IBuffer buffEncryptedKey)
         {
             // Open the algorithm provider for the specified asymmetric algorithm.
             AsymmetricKeyAlgorithmProvider objAsymmAlgProv = AsymmetricKeyAlgorithmProvider.OpenAlgorithm(strAsymmetricAlgName);
 
             // Use the private key embedded in the key pair to decrypt the session key.
-            decryptedMessage = CryptographicEngine.Decrypt(keyPair, buffEncryptedMessageBody, null);
+            decryptedAESKeyBuff = CryptographicEngine.Decrypt(keyPair, buffEncryptedKey, null);
 
             //convert to string
-            plaintext = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, decryptedMessage);
+            decryptedAesKeyString = CryptographicBuffer.EncodeToBase64String(decryptedAESKeyBuff);
 
         }
 
@@ -254,6 +321,21 @@ namespace ChronosClient.Views
                 status_Bar.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 37, 177, 76));
             }
 
+        }
+
+        private void aes_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            aesKey.Text = encryptedKeyString;
+        }
+
+        private void tag_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            tag.Text = authenticationTagString;
+        }
+
+        private void nonce_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            nonce.Text = nonceString;
         }
     }
 }
