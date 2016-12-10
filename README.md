@@ -1,5 +1,7 @@
-**Chronos Client**
+
+**Chronos Client  ![icon](https://github.com/nevver/ChronosClient/blob/master/ChronosClient/Assets/Square44x44Logo.targetsize-24_altform-unplated.png?raw=true)**
 ====
+
  A Universal Windows Platform application.<br>
  The API can be found https://github.com/nevver/chronosapi. <br>
  Currently hosted at https://chronoschat.co. <br />
@@ -37,5 +39,5 @@ Import the recipients public key to properly encrypt all messages between you an
 **Messages.xaml - Messages.xaml.cs**
 ----
     
-Decrypt thread of messages and render them for display. <br /> <br />
-    ![Import recipients public key](https://github.com/nevver/ChronosClient/blob/master/demo/messages.png?raw=true)
+Encrypt and send messages. Decrypt thread of messages and render them for display. <br /> <br />
+    ![Messages](https://github.com/nevver/ChronosClient/blob/master/demo/messages.png?raw=true)
