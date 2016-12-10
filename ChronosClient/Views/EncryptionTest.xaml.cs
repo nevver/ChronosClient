@@ -15,15 +15,27 @@ namespace ChronosClient.Views
     /// </summary>
     public sealed partial class EncryptionTest : Page
     {
-        private string plaintext;
-        private string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
+        private string plaintext; // Message to encrypt and authenticate.
+        private string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaOaepSha512;
         private UInt32 asymmetricKeyLength = 2048;
         private IBuffer pubKey;
         private IBuffer keys;
         private IBuffer encryptedMessage;
         private IBuffer decryptedMessage;
+        // Initialize a static nonce value.
+        static byte[] NonceBytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
+        // RSA key pair
         CryptographicKey keyPair;
+
+        // Initialize the symmetric encryption
+        private static String strSymAlgName = SymmetricAlgorithmNames.AesGcm;
+        private static UInt32 keyLength = 256;  // Length of the key, in bytes
+        BinaryStringEncoding encoding;          // Binary encoding
+        IBuffer buffNonce;                      // Nonce
+
+        // AES key
+        CryptographicKey key;                   // Symmetric key
 
         public EncryptionTest()
         {
@@ -41,6 +53,7 @@ namespace ChronosClient.Views
         {
             plaintext = cipher.Text;
         }
+
 
         private void createKeys_Click(object sender, RoutedEventArgs e)
         {
@@ -77,11 +90,68 @@ namespace ChronosClient.Views
                 status_Text.Text = "No plain text to encrypt.";
             }
 
+            //// Encrypt and authenticate the message.
+            //EncryptedAndAuthenticatedData objEncrypted = this.AuthenticatedEncryption(
+            //    plaintext,
+            //    strSymAlgName,
+            //    keyLength,
+            //    out buffNonce);
             asymemtricEncryptMessageBody(strAsymmetricAlgName, plaintext);
             cipher.Text = plaintext;
             plain.Text = plaintext;
             decrypt.IsEnabled = true;
 
+        }
+
+        // Encryption and authentication method
+        public EncryptedAndAuthenticatedData AuthenticatedEncryption(
+            String strMsg,
+            String strAlgName,
+            UInt32 keyLength,
+            out IBuffer buffNonce)
+        {
+            // Open a SymmetricKeyAlgorithmProvider object for the specified algorithm.
+            SymmetricKeyAlgorithmProvider objAlgProv = SymmetricKeyAlgorithmProvider.OpenAlgorithm(strAlgName);
+
+            // Create a buffer that contains the data to be encrypted.
+            encoding = BinaryStringEncoding.Utf8;
+            IBuffer buffMsg = CryptographicBuffer.ConvertStringToBinary(strMsg, encoding);
+
+            // Generate a symmetric key.
+            IBuffer keyMaterial = CryptographicBuffer.GenerateRandom(keyLength);
+            key = objAlgProv.CreateSymmetricKey(keyMaterial);
+
+            // Generate a new nonce value.
+            buffNonce = GetNonce();
+
+            // Encrypt and authenticate the message.
+            EncryptedAndAuthenticatedData objEncrypted = CryptographicEngine.EncryptAndAuthenticate(
+                key,
+                buffMsg,
+                buffNonce,
+                null);
+
+            return objEncrypted;
+
+        }
+
+        IBuffer GetNonce()
+        {
+            // Security best practises require that an ecryption operation not
+            // be called more than once with the same nonce for the same key.
+            // A nonce value can be predictable, but must be unique for each
+            // secure session.
+
+            NonceBytes[0]++;
+            for (int i = 0; i < NonceBytes.Length - 1; i++)
+            {
+                if (NonceBytes[i] == 255)
+                {
+                    NonceBytes[i + 1]++;
+                }
+            }
+
+            return CryptographicBuffer.CreateFromByteArray(NonceBytes);
         }
 
         private void decrypt_Click(object sender, RoutedEventArgs e)

@@ -19,7 +19,7 @@ namespace ChronosClient.Views
     /// </summary>
     public sealed partial class Login : Page
     {
-        private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
+        private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaOaepSha512;
         /// <summary>
         /// Static variables
         /// </summary>
@@ -85,6 +85,12 @@ namespace ChronosClient.Views
                         Frame.Navigate(typeof(ListUsers));
                     }
 
+                }
+                catch (FlurlHttpException ex)
+                {
+                    update_StatusBar("red");
+                    update_StatusText("User must be registered to login. Try again.");
+                    Debug.WriteLine(ex.ToString());
                 }
                 catch (HttpRequestException hre)
                 {

@@ -22,7 +22,7 @@ namespace ChronosClient.Views
     public sealed partial class Messages : Page
     {
         private static string message;
-        private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
+        private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaOaepSha512;
         private string recipientEncrypted;
         private string senderEncrypted;
         private IBuffer encryptedMessage;

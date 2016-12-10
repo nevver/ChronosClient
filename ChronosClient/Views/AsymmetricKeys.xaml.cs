@@ -20,7 +20,7 @@ namespace ChronosClient.Views
     {
         //private static IBuffer buffKeyPair;
         private IBuffer buffDecryptedSessionKey;
-        private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
+        private static string strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaOaepSha512;
         private static UInt32 asymmetricKeyLength = 2048;
 
 
@@ -30,59 +30,6 @@ namespace ChronosClient.Views
 
             continueButton.Visibility = Visibility.Collapsed;
             continueButton.IsEnabled = false;
-
-
-            //// Create a symmetric session key
-            //String strSymmetricAlgName = SymmetricAlgorithmNames.AesCbc;
-            //UInt32 symmetricKeyLength = 32;
-            //IBuffer buffSessionKey;
-            //this.createSymmetricSessionKey(
-            //    strSymmetricAlgName,
-            //    symmetricKeyLength,
-            //    out buffSessionKey);
-
-            ////test
-            //String text = CryptographicBuffer.EncodeToBase64String(buffSessionKey);
-            //Debug.WriteLine("Symmetric public Key only: " + text);
-
-
-            // Create an asymmetric key pair and export the public key.
-            //String strAsymmetricAlgName = AsymmetricAlgorithmNames.RsaPkcs1;
-            //UInt32 asymmetricKeyLength = 512;
-            //IBuffer buffPublicKey;
-            //this.createAsymmetricKeyPair(
-            //    strAsymmetricAlgName,
-            //    asymmetricKeyLength,
-            //    out buffPublicKey);
-
-            ////test
-            //String text2 = CryptographicBuffer.EncodeToBase64String(buffPublicKey);
-            //Debug.WriteLine("Asymmetric public Key only:" + text2);
-
-
-            //// Encrypt the symmetric session key by using the asymmetric public key.
-            //IBuffer buffEncryptedSessionKey;
-            //this.asymmetricEncryptSessionKey(
-            //    strAsymmetricAlgName,
-            //    buffSessionKey,
-            //    buffPublicKey,
-            //    out buffEncryptedSessionKey);
-
-            ////test
-            //String text3 = CryptographicBuffer.EncodeToBase64String(buffEncryptedSessionKey);
-            //Debug.WriteLine("Encrypt symmetric Key by using asymmetric public key:" + text3);
-
-
-            //// Decrypt the symmetric session key by using the asymmetric private key
-            //// that corresponds to the public key used to encrypt the session key.
-            //this.asymmetricDecryptSessionKey(
-            //    strAsymmetricAlgName,
-            //    strSymmetricAlgName,
-            //    buffEncryptedSessionKey);
-
-            ////test 
-            //String text4 = CryptographicBuffer.EncodeToBase64String(buffDecryptedSessionKey);
-            //Debug.WriteLine("Decrypt symmetric Key by using asymmetric private key that corresponds to the public key we used to encrypt:" + text4);
 
         }
 
