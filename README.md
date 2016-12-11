@@ -41,5 +41,5 @@ Import the recipients public key to properly encrypt all messages between you an
 **Messages.xaml - Messages.xaml.cs**
 ----
     
-Encrypt and send messages. Decrypt thread of messages and render them for display. <br /> <br />
+Send and recieve messages! The client encrypts the messages before communicating with the API and decrypts the thread for the rendering of the conversation. <br /> <br />
     ![Messages](https://github.com/nevver/ChronosClient/blob/master/demo/messages.png?raw=true)
