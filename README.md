@@ -4,8 +4,6 @@
 
  A E2EE Universal Windows Platform chat application.<br>
  The API can be found https://github.com/nevver/chronosapi. <br>
- Currently hosted at https://chronoschat.co. <br />
- The server can be tested on <a href="https://www.ssllabs.com/ssltest/analyze.html?d=chronoschat.co">Qualys SSL Labs</a>. <br>
   Symmetric encryption algorithm for messages and the authentication tag of the messages is the AES_GCM library referenced <a href="https://msdn.microsoft.com/en-us/library/windows.security.cryptography.core.encryptedandauthenticateddata.aspx">here </a> with a key size of 64 bytes. <br>
   Asymmetric encryption algorithm for AES keys is the RsaOaepSha512 library referenced <a href="https://msdn.microsoft.com/en-us/library/windows.security.cryptography.core.asymmetricalgorithmnames.rsaoaepsha512.aspx">here </a> with a key size of 2048 bits. <br>
 
